@@ -1103,7 +1103,7 @@ function liste_rubriques_auteur($id_auteur, $raz = false) {
 		)
 		and count($r)
 	) {
-		$r = array_map('reset', $r);
+		$r = array_column($r, 'id_objet');
 
 		// recuperer toute la branche, au format chaine enumeration
 		include_spip('inc/rubriques');
@@ -1730,7 +1730,7 @@ function auteurs_objet($objet, $id_objet, $cond = '') {
 		$where
 	);
 	if (is_array($auteurs)) {
-		return array_map('reset', $auteurs);
+		return array_column($auteurs, 'id_auteur');
 	}
 	return array();
 }
