@@ -58,8 +58,8 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 
 		if ($row) {
 			include_spip('auth/sha256.inc');
-			$shapass = _nano_sha256($row['alea_actuel'] . $pass);
-			$shanext = _nano_sha256($row['alea_futur'] . $pass);
+			$shapass = spip_sha256($row['alea_actuel'] . $pass);
+			$shanext = spip_sha256($row['alea_futur'] . $pass);
 			$md5pass = md5($row['alea_actuel'] . $pass);
 		}
 	}
@@ -351,7 +351,7 @@ function auth_spip_modifier_pass($login, $new_pass, $id_auteur, $serveur = '') {
 	$htpass = generer_htpass($new_pass);
 	$alea_actuel = creer_uniqid();
 	$alea_futur = creer_uniqid();
-	$pass = _nano_sha256($alea_actuel . $new_pass);
+	$pass = spip_sha256($alea_actuel . $new_pass);
 	$c['pass'] = $pass;
 	$c['htpass'] = $htpass;
 	$c['alea_actuel'] = $alea_actuel;
