@@ -415,7 +415,7 @@ function verifier_htaccess($rep, $force = false) {
 function gerer_htaccess() {
 	// Cette variable de configuration peut etre posee par un plugin
 	// par exemple acces_restreint
-	$f = isset($GLOBALS['meta']['creer_htaccess']) and ($GLOBALS['meta']['creer_htaccess'] === 'oui');
+	$f = (isset($GLOBALS['meta']['creer_htaccess']) and ($GLOBALS['meta']['creer_htaccess'] === 'oui'));
 	$dirs = sql_allfetsel('extension', 'spip_types_documents');
 	$dirs[] = array('extension' => 'distant');
 	foreach ($dirs as $e) {
