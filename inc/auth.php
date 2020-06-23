@@ -271,7 +271,10 @@ function auth_init_droits($row) {
 
 	// Administrateurs
 	if (in_array($GLOBALS['connect_statut'], explode(',', _STATUT_AUTEUR_RUBRIQUE))) {
-		if (is_array($GLOBALS['visiteur_session']['restreint'])) {
+		if (
+			isset($GLOBALS['visiteur_session']['restreint'])
+			and is_array($GLOBALS['visiteur_session']['restreint'])
+		) {
 			$GLOBALS['connect_id_rubrique'] = $GLOBALS['visiteur_session']['restreint'];
 		}
 		if ($GLOBALS['connect_statut'] == '0minirezo') {
