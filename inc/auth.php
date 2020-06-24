@@ -466,11 +466,11 @@ function auth_informer_login($login, $serveur = '') {
 		return $row;
 	}
 
-	$prefs = unserialize($row['prefs']);
+	$prefs = @unserialize($row['prefs']);
 	$infos = array(
 		'id_auteur' => $row['id_auteur'],
 		'login' => $row['login'],
-		'cnx' => ($prefs['cnx'] == 'perma') ? '1' : '0',
+		'cnx' => (isset($prefs['cnx']) and $prefs['cnx'] === 'perma') ? '1' : '0',
 		'logo' => recuperer_fond('formulaires/inc-logo_auteur', $row),
 	);
 
