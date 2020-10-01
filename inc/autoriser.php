@@ -216,7 +216,7 @@ $GLOBALS['autoriser_exception'] = array();
 /**
  * Accorder une autorisation exceptionnel pour le hit en cours, ou la revoquer
  *
- * http://code.spip.net/@autoriser_exception
+ * https://code.spip.net/@autoriser_exception
  *
  * @param string $faire Action demandée
  * @param string $type Type d'objet sur lequel appliquer l'action
