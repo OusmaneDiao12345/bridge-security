@@ -1844,6 +1844,6 @@ function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
  * @param  array $opt Options de cette autorisation
  * @return bool          true s'il a le droit, false sinon
  **/
-function autoriser_phpinfos($faire, $type, $id, $qui, $opt) {
+function autoriser_phpinfos_dist($faire, $type, $id, $qui, $opt) {
 	return autoriser('webmestre');
 }
