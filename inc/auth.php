@@ -228,6 +228,7 @@ function auth_init_droits($row) {
 	unset($GLOBALS['visiteur_session']['htpass']);
 	unset($GLOBALS['visiteur_session']['alea_actuel']);
 	unset($GLOBALS['visiteur_session']['alea_futur']);
+	unset($GLOBALS['visiteur_session']['ldap_password']);
 
 	// creer la session au besoin
 	if (!isset($_COOKIE['spip_session'])) {
