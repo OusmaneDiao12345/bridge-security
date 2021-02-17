@@ -167,8 +167,8 @@ function autoriser_dist($faire, $type = '', $id = 0, $qui = null, $opt = null) {
 	$type = str_replace('_', '', strncmp($type, '_', 1) == 0 ? $type : objet_type($type, false));
 
 	// Si une exception a ete decretee plus haut dans le code, l'appliquer
-	if (isset($GLOBALS['autoriser_exception'][$faire][$type][$id])
-		and autoriser_exception($faire, $type, $id, 'verifier')
+	if ((isset($GLOBALS['autoriser_exception'][$faire][$type][$id]) and autoriser_exception($faire, $type, $id, 'verifier'))
+	  or (isset($GLOBALS['autoriser_exception'][$faire][$type]['*']) and autoriser_exception($faire, $type, '*', 'verifier'))
 	) {
 		spip_log("autoriser ($faire, $type, $id, " . (isset($qui['nom']) ? $qui['nom'] : '') . ') : OK Exception', 'autoriser' . _LOG_DEBUG);
 		return true;
@@ -220,7 +220,7 @@ $GLOBALS['autoriser_exception'] = array();
  *
  * @param string $faire Action demandée
  * @param string $type Type d'objet sur lequel appliquer l'action
- * @param int $id Identifiant de l'objet
+ * @param int|string $id Identifiant de l'objet (* pour tous les ids)
  * @param bool $autoriser accorder (true) ou revoquer (false)
  * @return bool
  */
@@ -234,8 +234,14 @@ function autoriser_exception($faire, $type, $id, $autoriser = true) {
 		$GLOBALS['autoriser_exception'][$faire][$type][$id] = $autorisation[$faire][$type][$id] = true;
 	}
 	if ($autoriser === false) {
-		unset($GLOBALS['autoriser_exception'][$faire][$type][$id]);
-		unset($autorisation[$faire][$type][$id]);
+		if ($id === '*') {
+			unset($GLOBALS['autoriser_exception'][$faire][$type]);
+			unset($autorisation[$faire][$type]);
+		}
+		else {
+			unset($GLOBALS['autoriser_exception'][$faire][$type][$id]);
+			unset($autorisation[$faire][$type][$id]);
+		}
 	}
 
 	return false;
