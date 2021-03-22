@@ -971,27 +971,18 @@ function autoriser_auteur_creer_dist($faire, $type, $id, $qui, $opt) {
  **/
 function autoriser_auteur_modifier_dist($faire, $type, $id, $qui, $opt) {
 
-	// Ni admin ni redacteur => non
-	if (!in_array($qui['statut'], array('0minirezo', '1comite'))) {
-		return false;
-	}
-
-	// Un redacteur peut modifier ses propres donnees mais ni son login/email
-	// ni son statut (qui sont le cas echeant passes comme option)
-	if ($qui['statut'] == '1comite') {
-		if (!empty($opt['webmestre'])) {
-			return false;
-		} elseif (
-			!empty($opt['statut'])
-			or !empty($opt['restreintes'])
-			or !empty($opt['email'])
+	// Si pas admin : seulement le droit de modifier ses donnees perso, mais pas statut ni login
+	// la modif de l'email doit etre verifiee ou notifiee si possible, mais c'est a l'interface de gerer ca
+	if (!in_array($qui['statut'], array('0minirezo'))) {
+		if ($id == $qui['id_auteur']
+			&& empty($opt['statut'])
+			&& empty($opt['webmestre'])
+			&& empty($opt['restreintes'])
+			&& empty($opt['login'])
 		) {
-			return false;
-		} elseif ($id == $qui['id_auteur']) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	// Un admin restreint peut modifier/creer un auteur non-admin mais il
