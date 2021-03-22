@@ -264,11 +264,14 @@ function effacer_low_sec($id_auteur) {
  * @return void|bool
  */
 function initialiser_sel() {
-	if (CRYPT_MD5) {
-		$GLOBALS['htsalt'] = '$1$' . creer_pass_aleatoire();
-	} else {
-		return '';
+	if (!isset($GLOBALS['htsalt'])) {
+		if (CRYPT_MD5) {
+			$GLOBALS['htsalt'] = '$1$' . creer_pass_aleatoire();
+		} else {
+			$GLOBALS['htsalt'] = '';
+		}
 	}
+	return $GLOBALS['htsalt'];
 }
 
 /**
@@ -308,21 +311,38 @@ function ecrire_acces() {
 	if (spip_connect_ldap()) {
 		return;
 	}
-	$p1 = ''; // login:htpass pour tous
-	$p2 = ''; // login:htpass pour les admins
-	$s = sql_select('login, htpass, statut', 'spip_auteurs', sql_in('statut', array('1comite', '0minirezo', 'nouveau')));
-	while ($t = sql_fetch($s)) {
-		if (strlen($t['login']) and strlen($t['htpass'])) {
-			$p1 .= $t['login'] . ':' . $t['htpass'] . "\n";
-			if ($t['statut'] == '0minirezo') {
-				$p2 .= $t['login'] . ':' . $t['htpass'] . "\n";
+
+	generer_htpasswd_files($htpasswd, "$htpasswd-admin");
+}
+
+/**
+ * Generer le fichier de htpasswd contenant les htpass
+ * @param $htpasswd
+ * @param $htpasswd_admin
+ */
+function generer_htpasswd_files($htpasswd, $htpasswd_admin) {
+	if ($generer_htpasswd = charger_fonction('generer_htpasswd_files', 'inc', true)) {
+		$generer_htpasswd($htpasswd, $htpasswd_admin);
+	}
+
+	$pwd_all = ''; // login:htpass pour tous
+	$pwd_admin = ''; // login:htpass pour les admins
+
+	$res = sql_select('login, htpass, statut', 'spip_auteurs', "htpass!='' AND login!='' AND ".sql_in('statut', ['1comite', '0minirezo', 'nouveau']));
+	while ($row = sql_fetch($res)) {
+		if (strlen($row['login']) and strlen($row['htpass'])) {
+			$ligne = $row['login'] . ':' . $row['htpass'] . "\n";
+			$pwd_all .= $ligne;
+			if ($row['statut'] == '0minirezo') {
+				$pwd_admin .= $ligne;
 			}
 		}
 	}
-	if ($p1) {
-		ecrire_fichier($htpasswd, $p1);
-		ecrire_fichier($htpasswd . '-admin', $p2);
-		spip_log("Ecriture de $htpasswd et $htpasswd-admin");
+
+	if ($pwd_all) {
+		ecrire_fichier($htpasswd, $pwd_all);
+		ecrire_fichier($htpasswd_admin, $pwd_admin);
+		spip_log("Ecriture de $htpasswd et $htpasswd_admin", 'htpass');
 	}
 }
 
@@ -331,17 +351,19 @@ function ecrire_acces() {
  *
  * @link http://docs.php.net/manual/fr/function.crypt.php Documentation de `crypt()`
  *
- * @global string $htsalt
- *   Une chaîne de sel sur laquelle sera fondée le hachage.
  * @param string $pass
  *   Le mot de passe
  * @return void|string
  *  La chaîne hachée si fonction crypt présente, rien sinon.
  */
 function generer_htpass($pass) {
-	if (function_exists('crypt')) {
-		return crypt($pass, $GLOBALS['htsalt']);
+	if ($generer_htpass = charger_fonction('generer_htpass', 'inc', true)) {
+		return $generer_htpass($pass);
 	}
+	elseif (function_exists('crypt')) {
+		return crypt($pass, initialiser_sel());
+	}
+	return '';
 }
 
 /**
@@ -431,4 +453,3 @@ function gerer_htaccess() {
 	return isset($GLOBALS['meta']['creer_htaccess']) ? $GLOBALS['meta']['creer_htaccess'] : '';
 }
 
-initialiser_sel();
