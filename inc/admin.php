@@ -54,7 +54,7 @@ function inc_admin_dist($script, $titre, $comment = '', $anonymous = false) {
 		if ($res) {
 			return $res;
 		}
-		spip_log("meta: $script " . join(',', $_POST));
+		spip_log("meta: $script " . print_r($_POST, true));
 		ecrire_meta($script, serialize($_POST));
 	}
 
