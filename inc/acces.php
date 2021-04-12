@@ -161,7 +161,8 @@ function renouvelle_alea() {
 function low_sec($id_auteur) {
 	// Pas d'id_auteur : low_sec
 	if (!$id_auteur = intval($id_auteur)) {
-		if (!$low_sec = $GLOBALS['meta']['low_sec']) {
+		include_spip('inc/config');
+		if (!$low_sec = lire_config('low_sec')) {
 			ecrire_meta('low_sec', $low_sec = creer_pass_aleatoire());
 		}
 	} else {
