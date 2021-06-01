@@ -411,9 +411,7 @@ function verifier_htaccess($rep, $force = false) {
 			$t = substr($t, strlen(_DIR_RACINE));
 			$t = url_de_base() . $t;
 			$ht = recuperer_url($t, ['methode' => 'HEAD', 'taille_max' => 0, 'follow_location' => false]);
-			// htaccess inoperant si on a recupere des entetes HTTP
-			// (ignorer la reussite si connexion par fopen)
-			$ht = !(isset($ht['headers']) and $ht['headers']);
+			$ht = ($ht['status'] ?? null) === 403;
 		}
 	}
 	spip_log("Creation de $htaccess " . ($ht ? ' reussie' : ' manquee'));
