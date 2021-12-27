@@ -413,6 +413,8 @@ function auth_spip_modifier_pass($login, $new_pass, $id_auteur, $serveur = '') {
 	include_spip('auth/sha256.inc');
 	if ($generer_htpass = charger_fonction('generer_htpass', 'inc', true)) {
 		$htpass = $generer_htpass($new_pass);
+	} else {
+		$htpass = '';
 	}
 	$alea_actuel = creer_uniqid();
 	$alea_futur = creer_uniqid();
