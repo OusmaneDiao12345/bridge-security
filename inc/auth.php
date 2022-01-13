@@ -324,13 +324,11 @@ function auth_a_loger() {
  */
 function auth_trace($row, $date = null) {
 	// Indiquer la connexion. A la minute pres ca suffit.
-	if (!is_numeric($connect_quand = isset($row['quand']) ? $row['quand'] : '')) {
+	if (!is_numeric($connect_quand = $row['quand'] ?? '')) {
 		$connect_quand = strtotime($connect_quand);
 	}
 
-	if (is_null($date)) {
-		$date = date('Y-m-d H:i:s');
-	}
+	$date ??= date('Y-m-d H:i:s');
 
 	if (abs(strtotime($date) - $connect_quand) >= 60) {
 		sql_updateq('spip_auteurs', ['en_ligne' => $date], 'id_auteur=' . intval($row['id_auteur']));
