@@ -34,14 +34,13 @@ function creer_pass_aleatoire($longueur = 16, $sel = '') {
 	$seed = (int)round(((float)microtime() + 1) * time());
 
 	mt_srand($seed);
-	srand($seed);
 	$s = '';
 	$pass = '';
 	for ($i = 0; $i < $longueur; $i++) {
 		if (!$s) {
-			$s = mt_rand();
+			$s = random_int(0, mt_getrandmax());
 			if (!$s) {
-				$s = rand();
+				$s = random_int(0, mt_getrandmax());
 			}
 			$s = substr(md5(uniqid($s) . $sel), 0, 16);
 		}
@@ -85,13 +84,12 @@ function creer_uniqid() {
 	if (!$seeded) {
 		$seed = (int)round(((float)microtime() + 1) * time());
 		mt_srand($seed);
-		srand($seed);
 		$seeded = true;
 	}
 
-	$s = mt_rand();
+	$s = random_int(0, mt_getrandmax());
 	if (!$s) {
-		$s = rand();
+		$s = random_int(0, mt_getrandmax());
 	}
 
 	return uniqid($s, 1);
@@ -456,5 +454,5 @@ function gerer_htaccess() {
 		}
 	}
 
-	return isset($GLOBALS['meta']['creer_htaccess']) ? $GLOBALS['meta']['creer_htaccess'] : '';
+	return $GLOBALS['meta']['creer_htaccess'] ?? '';
 }

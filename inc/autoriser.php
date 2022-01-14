@@ -144,6 +144,7 @@ if ($f = find_in_path('mes_fonctions.php')) {
  */
 function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null, array $opt = []): bool {
 
+	$a = null;
 	// Tolérance avec certains appels de $id (null, '', 'new', 'oui').
 	$id = (int) $id;
 	if ($type === null) {
@@ -153,7 +154,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null,
 	// Qui ? visiteur_session ?
 	// si null ou '' (appel depuis #AUTORISER) on prend l'auteur loge
 	if ($qui === null or $qui === '') {
-		$qui = $GLOBALS['visiteur_session'] ? $GLOBALS['visiteur_session'] : [];
+		$qui = $GLOBALS['visiteur_session'] ?: [];
 		$qui = array_merge(['statut' => '', 'id_auteur' => 0, 'webmestre' => 'non'], $qui);
 	} elseif (is_numeric($qui)) {
 		$qui = sql_fetsel('*', 'spip_auteurs', 'id_auteur=' . $qui);
@@ -166,7 +167,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null,
 	}
 
 	spip_log(
-		"autoriser $faire $type $id (" . (isset($qui['nom']) ? $qui['nom'] : '') . ') ?',
+		"autoriser $faire $type $id (" . ($qui['nom'] ?? '') . ') ?',
 		'autoriser' . _LOG_DEBUG
 	);
 
@@ -183,7 +184,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null,
 		(isset($GLOBALS['autoriser_exception'][$faire][$type][$id]) and autoriser_exception($faire, $type, $id, 'verifier'))
 		or (isset($GLOBALS['autoriser_exception'][$faire][$type]['*']) and autoriser_exception($faire, $type, '*', 'verifier'))
 	) {
-		spip_log("autoriser ($faire, $type, $id, " . (isset($qui['nom']) ? $qui['nom'] : '') . ') : OK Exception', 'autoriser' . _LOG_DEBUG);
+		spip_log("autoriser ($faire, $type, $id, " . ($qui['nom'] ?? '') . ') : OK Exception', 'autoriser' . _LOG_DEBUG);
 		return true;
 	}
 
@@ -216,7 +217,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null,
 	}
 
 	spip_log(
-		"$f($faire, $type, $id, " . (isset($qui['nom']) ? $qui['nom'] : '') . ') : ' . ($a ? 'OK' : 'niet'),
+		"$f($faire, $type, $id, " . ($qui['nom'] ?? '') . ') : ' . ($a ? 'OK' : 'niet'),
 		'autoriser' . _LOG_DEBUG
 	);
 
@@ -1156,7 +1157,7 @@ function liste_rubriques_auteur($id_auteur, $raz = false) {
 			'spip_auteurs_liens',
 			'id_auteur=' . intval($id_auteur) . " AND objet='rubrique' AND id_objet!=0"
 		)
-		and count($r)
+		and is_countable($r) ? count($r) : 0
 	) {
 		$r = array_column($r, 'id_objet');
 

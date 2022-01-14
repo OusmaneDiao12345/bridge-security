@@ -61,7 +61,7 @@ function inc_auth_dist() {
 	$n = intval(sql_errno());
 	spip_log("Erreur base de donnees $n " . sql_error());
 
-	return $n ? $n : 1;
+	return $n ?: 1;
 }
 
 /**
@@ -240,7 +240,7 @@ function auth_init_droits($row) {
 	// reinjecter les preferences_auteur apres le reset de spip_session
 	// car utilisees au retour par auth_loger()
 	$r = @unserialize($row['prefs']);
-	$GLOBALS['visiteur_session']['prefs'] = ($r ? $r : []);
+	$GLOBALS['visiteur_session']['prefs'] = ($r ?: []);
 	// si prefs pas definies, les definir par defaut
 	if (!isset($GLOBALS['visiteur_session']['prefs']['couleur'])) {
 		$GLOBALS['visiteur_session']['prefs']['couleur'] = 2;
@@ -362,7 +362,7 @@ function auth_trace($row, $date = null) {
  */
 function auth_administrer($fonction, $args, $defaut = false) {
 	$auth_methode = array_shift($args);
-	$auth_methode = $auth_methode ? $auth_methode : 'spip'; // valeur par defaut au cas ou
+	$auth_methode = $auth_methode ?: 'spip'; // valeur par defaut au cas ou
 	if (
 		$auth = charger_fonction($auth_methode, 'auth', true)
 		and function_exists($f = "auth_{$auth_methode}_$fonction")
@@ -783,7 +783,7 @@ function ask_php_auth($pb, $raison, $retour = '', $url = '', $re = '', $lien = '
 	$corps = '';
 	$public = generer_url_public();
 	$ecrire = generer_url_ecrire();
-	$retour = $retour ? $retour : _T('icone_retour');
+	$retour = $retour ?: _T('icone_retour');
 	$corps .= "<p>$raison</p>[<a href='$public'>$retour</a>] ";
 	if ($url) {
 		$corps .= "[<a href='" . generer_url_action('cookie', "essai_auth_http=oui&$url") . "'>$re</a>]";
