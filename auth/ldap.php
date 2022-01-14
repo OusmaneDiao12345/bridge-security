@@ -223,7 +223,7 @@ function auth_ldap_retrouver($dn, $desc = [], $serveur = '') {
 
 	$ldap_link = $ldap['link'];
 	if (!$desc) {
-		$desc = $ldap['attributes'] ? $ldap['attributes'] : $GLOBALS['ldap_attributes'];
+		$desc = $ldap['attributes'] ?: $GLOBALS['ldap_attributes'];
 		unset($desc['login']);
 	}
 	$result = @ldap_read($ldap_link, $dn, 'objectClass=*', array_values($desc));
