@@ -86,7 +86,7 @@ function auth_ldap_dist($login, $pass, $serveur = '', $phpauth = false) {
 		$desc['source'] = 'ldap';
 		$desc['pass'] = '';
 
-		$r = sql_insertq('spip_auteurs', $desc, '', $serveur);
+		$r = sql_insertq('spip_auteurs', $desc, [], $serveur);
 	}
 
 	if ($r) {
