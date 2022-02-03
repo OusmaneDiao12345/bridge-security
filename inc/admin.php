@@ -252,7 +252,7 @@ function debut_admin($script, $action = '', $corps = '') {
 		$form = copy_request($script, $corps, $suivant);
 		$info_action = _T('info_action', ['action' => "$action"]);
 
-		return minipres($info_action, $form, $js);
+		return minipres($info_action, $form, ['onload' => $js]);
 	}
 }
 
