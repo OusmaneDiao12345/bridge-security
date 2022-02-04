@@ -13,7 +13,7 @@
 /**
  * Gestion d'administration d'un SPIP
  *
- * @param SPIP\Core\Admin
+ * @package SPIP\Core\Admin
  **/
 
 if (!defined('_ECRIRE_INC_VERSION')) {

@@ -82,7 +82,7 @@ if (!function_exists('autoriser')) {
 	 *
 	 * @param string $faire
 	 *   une action ('modifier', 'publier'...)
-	 * @param ?string $type
+	 * @param string|null $type
 	 *   type d'objet ou nom de table ('article')
 	 * @param int $id
 	 *   id de l'objet sur lequel on veut agir
@@ -620,7 +620,7 @@ function autoriser_rubrique_creer_dist(string $faire, string $type, int $id, arr
 		return autoriser('creerrubriquedans', 'rubrique', $opt['id_parent'], $qui);
 	}
 	else {
-		return autoriser('defaut', null, null, $qui, $opt);
+		return autoriser('defaut', null, 0, $qui, $opt);
 	}
 }
 
@@ -923,7 +923,7 @@ function autoriser_sauvegarder_dist(string $faire, string $type, int $id, array 
  * @return bool          true s'il a le droit, false sinon
  **/
 function autoriser_detruire_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
-	return autoriser('webmestre', null, null, $qui, $opt);
+	return autoriser('webmestre', null, 0, $qui, $opt);
 }
 
 /**

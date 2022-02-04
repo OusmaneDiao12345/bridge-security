@@ -295,7 +295,7 @@ function auth_init_droits($row) {
  * @return string
  */
 function auth_a_loger() {
-	$redirect = generer_url_public('login', 'url=' . rawurlencode(self('&', true)), '&');
+	$redirect = generer_url_public('login', 'url=' . rawurlencode(self('&', true)), true);
 
 	// un echec au "bonjour" (login initial) quand le statut est
 	// inconnu signale sans doute un probleme de cookies
