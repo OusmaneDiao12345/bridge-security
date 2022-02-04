@@ -233,10 +233,12 @@ $GLOBALS['autoriser_exception'] = [];
  * @param string $faire Action demandée
  * @param string $type Type d'objet sur lequel appliquer l'action
  * @param int|string $id Identifiant de l'objet (* pour tous les ids)
- * @param bool $autoriser accorder (true) ou revoquer (false)
+ * @param string|bool $autoriser accorder (true) ou revoquer (false)
+ *     - bool Accorder ou révoquer
+ *     - 'verifier' : test si une exception existe
  * @return bool
  */
-function autoriser_exception(string $faire, ?string $type = '', $id = 0, bool $autoriser = true): bool {
+function autoriser_exception(string $faire, ?string $type = '', $id = 0, $autoriser = true): bool {
 	// une static innaccessible par url pour verifier que la globale est positionnee a bon escient
 	static $autorisation;
 	// Tolérance avec certains appels
