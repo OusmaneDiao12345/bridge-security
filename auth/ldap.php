@@ -52,7 +52,7 @@ if (!isset($GLOBALS['ldap_attributes']) or !is_array($GLOBALS['ldap_attributes']
  * @param string $pass
  * @param string $serveur
  * @param bool $phpauth
- * @return string
+ * @return array|bool
  */
 function auth_ldap_dist($login, $pass, $serveur = '', $phpauth = false) {
 
@@ -215,7 +215,7 @@ function auth_ldap_search($login, $pass, $checkpass = true, $serveur = '') {
 function auth_ldap_retrouver($dn, $desc = [], $serveur = '') {
 	// Lire les infos sur l'utilisateur a partir de son DN depuis LDAP
 
-	if (!$ldap = spip_connect_ldap($serveur)) {
+	if (!$ldap = auth_ldap_connect($serveur)) {
 		spip_log("ldap $serveur injoignable");
 
 		return [];
@@ -323,7 +323,7 @@ function auth_ldap_modifier_pass($login, $new_pass, $id_auteur, $serveur = '') {
 		return false;
 	}
 	if (!$ldap = auth_ldap_connect($serveur)) {
-		return '';
+		return false;
 	}
 	$link = $ldap['link'];
 	include_spip('inc/session');
