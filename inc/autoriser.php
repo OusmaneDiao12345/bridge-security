@@ -79,14 +79,21 @@ if (!function_exists('autoriser')) {
 	 *
 	 * @api
 	 * @see autoriser_dist()
+	 * @see objet_type()
 	 *
 	 * @param string $faire
 	 *   une action ('modifier', 'publier'...)
 	 * @param string|null $type
-	 *   type d'objet ou nom de table ('article')
-	 * @param int $id
-	 *   id de l'objet sur lequel on veut agir
-	 *   Casté en int si différent.
+	 *   Type d’objet ou élément sur lequel appliquer l’action.
+	 *   - null: indifférent à tout type d’élément ou objet éditorial
+	 *   - string: objet éditorial (objet_type() est appliqué pour homogénéiser l’entrée)
+	 *   - _string: autre élément (avec un souligné en premier caractère, désactive objet_type()).
+	 *   Les soulignés seront retirés (cf. la note).
+	 * @param string|int|null $id
+	 *   id de l'objet ou élément sur lequel on veut agir, si pertinent.
+	 *   - null: non utile pour l’autorisation
+	 *   - int: identifiant numérique (cas de tous les objets éditoriaux de SPIP)
+	 *   - string: identifiant textuel
 	 * @param null|int|array $qui
 	 *   - si null on prend alors visiteur_session
 	 *   - un id_auteur (on regarde dans la base)
@@ -96,7 +103,7 @@ if (!function_exists('autoriser')) {
 	 * @return bool
 	 *   true si la personne peut effectuer l'action
 	 */
-	function autoriser(string $faire, ?string $type = '', $id = 0, $qui = null, array $opt = []): bool {
+	function autoriser(string $faire, ?string $type = '', $id = null, $qui = null, array $opt = []): bool {
 		// Charger les fonctions d'autorisation supplementaires
 		static $pipe;
 		if (!isset($pipe)) {
@@ -128,25 +135,25 @@ if ($f = find_in_path('mes_fonctions.php')) {
  *
  * @param string $faire
  *   une action ('modifier', 'publier'...)
- * @param ?string $type
- *   type d'objet ou nom de table ('article')
- * @param int $id
- *   id de l'objet sur lequel on veut agir.
- *   Casté en int si différent
+ * @param string|null $type
+ *   type d'objet ('article') ou élément
+ * @param int|string|null $id
+ *   id de l'objet ou élément sur lequel on veut agir, si pertinent.
+ *   - null: non utile pour l’autorisation
+ *   - int: identifiant numérique (cas de tous les objets éditoriaux de SPIP)
+ *   - string: identifiant textuel
  * @param null|int|array $qui
- *   si null on prend alors visiteur_session
- *   un id_auteur (on regarde dans la base)
- *   un tableau auteur complet, y compris [restreint]
- * @param null|array $opt
+ *   - si null on prend alors visiteur_session
+ *   - un id_auteur (on regarde dans la base)
+ *   - un tableau auteur complet, y compris [restreint]
+ * @param array $opt
  *   options sous forme de tableau associatif
  * @return bool
  *   true si la personne peut effectuer l'action
  */
-function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null, array $opt = []): bool {
+function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = null, array $opt = []): bool {
 
 	$a = null;
-	// Tolérance avec certains appels de $id (null, '', 'new', 'oui').
-	$id = (int) $id;
 	if ($type === null) {
 		$type = '';
 	}
@@ -228,17 +235,19 @@ function autoriser_dist(string $faire, ?string $type = '', $id = 0, $qui = null,
 $GLOBALS['autoriser_exception'] = [];
 
 /**
- * Accorder une autorisation exceptionnel pour le hit en cours, ou la revoquer
+ * Accorder une autorisation exceptionnelle pour le hit en cours, ou la révoquer
  *
+ * @see autoriser()
+ * 
  * @param string $faire Action demandée
- * @param string $type Type d'objet sur lequel appliquer l'action
- * @param int|string $id Identifiant de l'objet (* pour tous les ids)
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant (* pour tous les ids)
  * @param string|bool $autoriser accorder (true) ou revoquer (false)
  *     - bool Accorder ou révoquer
  *     - 'verifier' : test si une exception existe
  * @return bool
  */
-function autoriser_exception(string $faire, ?string $type = '', $id = 0, $autoriser = true): bool {
+function autoriser_exception(string $faire, ?string $type = '', $id = null, $autoriser = true): bool {
 	// une static innaccessible par url pour verifier que la globale est positionnee a bon escient
 	static $autorisation;
 	// Tolérance avec certains appels
@@ -274,32 +283,38 @@ function autoriser_exception(string $faire, ?string $type = '', $id = 0, $autori
  *
  * Les admins complets OK, les autres non
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_defaut_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_defaut_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		$qui['statut'] == '0minirezo'
 		and !$qui['restreint'];
 }
 
 /**
- * Autorisation a se loger ? Retourne true pour tous les statuts sauf 5poubelle
- * Peut etre surchargee pour interdire statut=nouveau a se connecter
+ * Autorisation à se loger ? 
+ * 
+ * Retourne true pour tous les statuts sauf 5poubelle
+ * Peut être surchargée pour interdire statut=nouveau à se connecter
  * et forcer l'utilisation du lien de confirmation email pour valider le compte
  *
- * @param $faire
- * @param $type
- * @param $id
- * @param $qui
- * @param $opt
- * @return bool
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  */
-function autoriser_loger_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_loger_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if ($qui['statut'] == '5poubelle') {
 		return false;
 	}
@@ -309,14 +324,16 @@ function autoriser_loger_dist(string $faire, string $type, int $id, array $qui, 
 /**
  * Autorisation d'accès à l'espace privé ?
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_ecrire_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_ecrire_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return isset($qui['statut']) and in_array($qui['statut'], ['0minirezo', '1comite']);
 }
 
@@ -326,14 +343,16 @@ function autoriser_ecrire_dist(string $faire, string $type, int $id, array $qui,
  * Accordée par defaut ceux qui accèdent à l'espace privé,
  * peut-être surchargée au cas par cas
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_creer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_creer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return in_array($qui['statut'], ['0minirezo', '1comite']);
 }
 
@@ -343,14 +362,16 @@ function autoriser_creer_dist(string $faire, string $type, int $id, array $qui, 
  * @uses test_previsualiser_objet_champ()
  * @uses decrire_token_previsu()
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_previsualiser_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_previsualiser_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 
 	// Le visiteur a-t-il un statut prevu par la config ?
 	if (strpos($GLOBALS['meta']['preview'], ',' . $qui['statut'] . ',') !== false) {
@@ -383,13 +404,14 @@ function autoriser_previsualiser_dist(string $faire, string $type, int $id, arra
  *
  * @uses lister_tables_objets_sql()
  *
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return boolean True si autorisé, false sinon.
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  */
-function test_previsualiser_objet_champ(string $type = '', int $id = 0, array $qui = [], array $opt = []): bool {
+function test_previsualiser_objet_champ(string $type = '', $id = null, array $qui = [], array $opt = []): bool {
 
 	// si pas de type et statut fourni, c'est une autorisation generale => OK
 	if (!$type) {
@@ -448,14 +470,16 @@ function test_previsualiser_objet_champ(string $type = '', int $id = 0, array $q
 /**
  * Autorisation de changer de langue un contenu
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_changerlangue_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_changerlangue_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	$multi_objets = explode(',', lire_config('multi_objets'));
 	$gerer_trad_objets = explode(',', lire_config('gerer_trad_objets'));
 	$table = table_objet_sql($type);
@@ -506,28 +530,32 @@ function autoriser_changerlangue_dist(string $faire, string $type, int $id, arra
 /**
  * Autorisation de changer le lien de traduction
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_changertraduction_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_changertraduction_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('modifier', $type, $id, $qui, $opt);
 }
 
 /**
  * Autorisation de changer la date d'un contenu
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_dater_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_dater_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	$table = table_objet($type);
 	$trouver_table = charger_fonction('trouver_table', 'base');
 	$desc = $trouver_table($table);
@@ -571,14 +599,16 @@ function autoriser_dater_dist(string $faire, string $type, int $id, array $qui, 
  * C'est à dire de changer son statut ou son parent.
  * Par défaut, il faut l'autorisation de modifier le contenu
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_instituer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_instituer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('modifier', $type, $id, $qui, $opt);
 }
 
@@ -587,14 +617,16 @@ function autoriser_instituer_dist(string $faire, string $type, int $id, array $q
  *
  * Il faut être administrateur ou administrateur restreint de la rubrique
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_publierdans_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_publierdans_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		($qui['statut'] == '0minirezo')
 		and (
@@ -608,14 +640,16 @@ function autoriser_rubrique_publierdans_dist(string $faire, string $type, int $i
  *
  * Il faut être administrateur pour pouvoir publier à la racine
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_creer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_creer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (!empty($opt['id_parent'])) {
 		return autoriser('creerrubriquedans', 'rubrique', $opt['id_parent'], $qui);
 	}
@@ -629,14 +663,16 @@ function autoriser_rubrique_creer_dist(string $faire, string $type, int $id, arr
  *
  * Il faut être administrateur et pouvoir publier dans la rubrique
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_creerrubriquedans_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_creerrubriquedans_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		($id or ($qui['statut'] == '0minirezo' and !$qui['restreint']))
 		and autoriser('voir', 'rubrique', $id)
@@ -648,14 +684,16 @@ function autoriser_rubrique_creerrubriquedans_dist(string $faire, string $type, 
  *
  * Il faut pouvoir voir la rubrique et pouvoir créer un article…
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_creerarticledans_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_creerarticledans_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		$id
 		and autoriser('voir', 'rubrique', $id)
@@ -668,14 +706,16 @@ function autoriser_rubrique_creerarticledans_dist(string $faire, string $type, i
  *
  * Il faut pouvoir publier dans cette rubrique
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_modifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_modifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		autoriser('publierdans', 'rubrique', $id, $qui, $opt);
 }
@@ -685,14 +725,16 @@ function autoriser_rubrique_modifier_dist(string $faire, string $type, int $id, 
  *
  * Il faut quelle soit vide (pas d'enfant) et qu'on ait le droit de la modifier
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_supprimer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_supprimer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (!$id = intval($id)) {
 		return false;
 	}
@@ -725,14 +767,16 @@ function autoriser_rubrique_supprimer_dist(string $faire, string $type, int $id,
  * Il faut pouvoir publier dans le parent
  * ou, si on change le statut en proposé ou préparation être auteur de l'article
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_article_modifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_article_modifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (!$id) {
 		return false;
 	}
@@ -757,14 +801,16 @@ function autoriser_article_modifier_dist(string $faire, string $type, int $id, a
  *
  * Il faut qu'une rubrique existe et être au moins rédacteur
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_article_creer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_article_creer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (!empty($opt['id_parent'])) {
 		// creerarticledans rappelle autoriser(creer,article) sans id, donc on verifiera condition du else aussi
 		return autoriser('creerarticledans', 'rubrique', $opt['id_parent'], $qui);
@@ -783,14 +829,16 @@ function autoriser_article_creer_dist(string $faire, string $type, int $id, arra
  * Peut-être appelée sans $id, mais avec un $opt['statut'] pour tester
  * la liste des status autorisés en fonction de $qui['statut']
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  */
-function autoriser_article_voir_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_article_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if ($qui['statut'] == '0minirezo') {
 		return true;
 	}
@@ -821,14 +869,16 @@ function autoriser_article_voir_dist(string $faire, string $type, int $id, array
  *
  * Tout est visible par défaut, sauf les auteurs où il faut au moins être rédacteur.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_voir_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	# securite, mais on aurait pas du arriver ici !
 	if (
 		function_exists($f = 'autoriser_' . $type . '_voir')
@@ -859,14 +909,16 @@ function autoriser_voir_dist(string $faire, string $type, int $id, array $qui, a
  * Soit la liste des webmestres est définie via une constante _ID_WEBMESTRES,
  * soit on regarde l'état "webmestre" de l'auteur
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_webmestre_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_webmestre_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		(defined('_ID_WEBMESTRES') ?
 			in_array($qui['id_auteur'], explode(':', _ID_WEBMESTRES))
@@ -880,14 +932,16 @@ function autoriser_webmestre_dist(string $faire, string $type, int $id, array $q
  *
  * Il faut être administrateur complet
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		$qui['statut'] == '0minirezo'
 		and !$qui['restreint'];
@@ -898,14 +952,16 @@ function autoriser_configurer_dist(string $faire, string $type, int $id, array $
  *
  * Il faut être administrateur (y compris restreint)
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_sauvegarder_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_sauvegarder_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
 		$qui['statut'] == '0minirezo';
 }
@@ -915,14 +971,16 @@ function autoriser_sauvegarder_dist(string $faire, string $type, int $id, array 
  *
  * Il faut être webmestre
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_detruire_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_detruire_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('webmestre', null, 0, $qui, $opt);
 }
 
@@ -932,14 +990,16 @@ function autoriser_detruire_dist(string $faire, string $type, int $id, array $qu
  * Il faut être administrateur ou que l'auteur à prévisualiser
  * ait au moins publié un article
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteur_previsualiser_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteur_previsualiser_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	// les admins peuvent "previsualiser" une page auteur
 	if (
 		$qui['statut'] == '0minirezo'
@@ -975,15 +1035,16 @@ function autoriser_auteur_previsualiser_dist(string $faire, string $type, int $i
  * @see auteur_inserer()
  * @see auteur_instituer()
  * @see autoriser_auteur_modifier_dist()
- *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteur_creer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteur_creer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return ($qui['statut'] == '0minirezo');
 }
 
@@ -995,14 +1056,16 @@ function autoriser_auteur_creer_dist(string $faire, string $type, int $id, array
  * rédacteur, mais on ne peut pas promouvoir (changer le statut) un auteur
  * avec des droits supérieurs au sien.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteur_modifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 
 	// Si pas admin : seulement le droit de modifier ses donnees perso, mais pas statut ni login
 	// la modif de l'email doit etre verifiee ou notifiee si possible, mais c'est a l'interface de gerer ca
@@ -1079,14 +1142,16 @@ function autoriser_auteur_modifier_dist(string $faire, string $type, int $id, ar
  *
  * Il faut pouvoir modifier l'objet en question
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_associerauteurs_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_associerauteurs_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('modifier', $type, $id, $qui, $opt);
 }
 
@@ -1096,14 +1161,16 @@ function autoriser_associerauteurs_dist(string $faire, string $type, int $id, ar
  *
  * Il faut être administrateur.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_chargerftp_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_chargerftp_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return $qui['statut'] == '0minirezo';
 }
 
@@ -1112,14 +1179,16 @@ function autoriser_chargerftp_dist(string $faire, string $type, int $id, array $
  *
  * Il faut être administrateur.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_debug_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_debug_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return $qui['statut'] == '0minirezo';
 }
 
@@ -1192,14 +1261,16 @@ function liste_rubriques_auteur($id_auteur, $raz = false) {
  *
  * Il faut pouvoir prévisualiser.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_previsualiser_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_previsualiser_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('previsualiser');
 }
 
@@ -1208,14 +1279,16 @@ function autoriser_rubrique_previsualiser_dist(string $faire, string $type, int 
  *
  * Il faut pouvoir publier dans la rubrique.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubrique_iconifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubrique_iconifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('publierdans', 'rubrique', $id, $qui, $opt);
 }
 
@@ -1224,14 +1297,16 @@ function autoriser_rubrique_iconifier_dist(string $faire, string $type, int $id,
  *
  * Il faut un administrateur ou que l'auteur soit celui qui demande l'autorisation
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteur_iconifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteur_iconifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return (($id == $qui['id_auteur']) or
 		(($qui['statut'] == '0minirezo') and !$qui['restreint']));
 }
@@ -1241,14 +1316,16 @@ function autoriser_auteur_iconifier_dist(string $faire, string $type, int $id, a
  *
  * Il faut pouvoir modifier l'objet
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_iconifier_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_iconifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	// par defaut, on a le droit d'iconifier si on a le droit de modifier
 	return autoriser('modifier', $type, $id, $qui, $opt);
 }
@@ -1260,14 +1337,16 @@ function autoriser_iconifier_dist(string $faire, string $type, int $id, array $q
  * Autorise toujours !
  * Fonction sans surprise pour permettre les tests.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_ok_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_ok_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1277,14 +1356,16 @@ function autoriser_ok_dist(string $faire, string $type, int $id, array $qui, arr
  * Refuse toujours !
  * Fonction sans surprise pour permettre les tests.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          false
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return false
  **/
-function autoriser_niet_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_niet_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return false;
 }
 
@@ -1293,14 +1374,16 @@ function autoriser_niet_dist(string $faire, string $type, int $id, array $qui, a
  *
  * Il faut pouvoir la détruire (et ne pas être en cours de réinstallation)
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          false
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_base_reparer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_base_reparer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (!autoriser('detruire') or _request('reinstall')) {
 		return false;
 	}
@@ -1313,14 +1396,16 @@ function autoriser_base_reparer_dist(string $faire, string $type, int $id, array
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_infosperso_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_infosperso_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1329,14 +1414,16 @@ function autoriser_infosperso_dist(string $faire, string $type, int $id, array $
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_langage_configurer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_langage_configurer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1345,14 +1432,16 @@ function autoriser_langage_configurer_dist(string $faire, string $type, int $id,
  *
  * Calquée sur l'autorisation de voir le formulaire configurer_langage
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurerlangage_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurerlangage_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_langage', $id, $qui, $opt);
 }
 
@@ -1361,14 +1450,16 @@ function autoriser_configurerlangage_dist(string $faire, string $type, int $id, 
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_preferences_configurer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_preferences_configurer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1377,14 +1468,16 @@ function autoriser_preferences_configurer_dist(string $faire, string $type, int 
  *
  * Calquée sur l'autorisation de voir le formulaire configurer_preferences
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurerpreferences_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurerpreferences_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_preferences', $id, $qui, $opt);
 }
 
@@ -1393,14 +1486,16 @@ function autoriser_configurerpreferences_dist(string $faire, string $type, int $
  *
  * Dépend de la préférences utilisateur
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_menudeveloppement_menugrandeentree_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_menudeveloppement_menugrandeentree_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return (isset($GLOBALS['visiteur_session']['prefs']['activer_menudev'])
 		and $GLOBALS['visiteur_session']['prefs']['activer_menudev'] == 'oui');
 }
@@ -1411,14 +1506,16 @@ function autoriser_menudeveloppement_menugrandeentree_dist(string $faire, string
  * Par defaut les grandes entrees (accueil, édition, publication, etc.)
  * sont visibles de tous
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_menugrandeentree_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_menugrandeentree_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1427,14 +1524,16 @@ function autoriser_menugrandeentree_dist(string $faire, string $type, int $id, a
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_auteurs_voir_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteurs_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1443,14 +1542,16 @@ function autoriser_auteurs_voir_dist(string $faire, string $type, int $id, array
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteurs_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteurs_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('voir', '_auteurs', $id, $qui, $opt);
 }
 
@@ -1459,14 +1560,16 @@ function autoriser_auteurs_menu_dist(string $faire, string $type, int $id, array
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_articles_voir_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_articles_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1475,14 +1578,16 @@ function autoriser_articles_voir_dist(string $faire, string $type, int $id, arra
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_articles_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_articles_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('voir', '_articles', $id, $qui, $opt);
 }
 
@@ -1491,14 +1596,16 @@ function autoriser_articles_menu_dist(string $faire, string $type, int $id, arra
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return true
  **/
-function autoriser_rubriques_voir_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubriques_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return true;
 }
 
@@ -1507,14 +1614,16 @@ function autoriser_rubriques_voir_dist(string $faire, string $type, int $id, arr
  *
  * Toujours OK
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_rubriques_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_rubriques_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('voir', '_rubriques', $id, $qui, $opt);
 }
 
@@ -1523,14 +1632,16 @@ function autoriser_rubriques_menu_dist(string $faire, string $type, int $id, arr
  *
  * Il faut au moins une rubrique présente.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_articlecreer_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_articlecreer_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return verifier_table_non_vide();
 }
 
@@ -1542,14 +1653,16 @@ function autoriser_articlecreer_menu_dist(string $faire, string $type, int $id, 
  *
  * @see autoriser_auteur_creer_dist()
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_auteurcreer_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_auteurcreer_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('creer', 'auteur', $id, $qui, $opt);
 }
 
@@ -1558,14 +1671,16 @@ function autoriser_auteurcreer_menu_dist(string $faire, string $type, int $id, a
  *
  * Être admin complet et il faut qu'il en existe ou que ce soit activé en config
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_visiteurs_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_visiteurs_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	include_spip('base/abstract_sql');
 	return
 		$qui['statut'] == '0minirezo' and !$qui['restreint']
@@ -1580,14 +1695,16 @@ function autoriser_visiteurs_menu_dist(string $faire, string $type, int $id, arr
  *
  * Il faut être administrateur (y compris restreint).
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_suiviedito_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_suiviedito_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return $qui['statut'] == '0minirezo';
 }
 
@@ -1596,14 +1713,16 @@ function autoriser_suiviedito_menu_dist(string $faire, string $type, int $id, ar
  *
  * Il faut être administrateur (y compris restreint).
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_synchro_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_synchro_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return $qui['statut'] == '0minirezo';
 }
 
@@ -1612,14 +1731,16 @@ function autoriser_synchro_menu_dist(string $faire, string $type, int $id, array
  *
  * Il faut avoir accès à la page configurer_interactions
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurerinteractions_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurerinteractions_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_interactions', $id, $qui, $opt);
 }
 
@@ -1628,14 +1749,16 @@ function autoriser_configurerinteractions_menu_dist(string $faire, string $type,
  *
  * Il faut avoir accès à la page configurer_langue
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurerlangue_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurerlangue_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_langue', $id, $qui, $opt);
 }
 
@@ -1644,14 +1767,16 @@ function autoriser_configurerlangue_menu_dist(string $faire, string $type, int $
  *
  * Il faut avoir accès à la page configurer_multilinguisme
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurermultilinguisme_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurermultilinguisme_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_multilinguisme', $id, $qui, $opt);
 }
 
@@ -1660,14 +1785,16 @@ function autoriser_configurermultilinguisme_menu_dist(string $faire, string $typ
  *
  * Il faut avoir accès à la page configurer_contenu
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configurercontenu_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configurercontenu_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_contenu', $id, $qui, $opt);
 }
 
@@ -1676,14 +1803,16 @@ function autoriser_configurercontenu_menu_dist(string $faire, string $type, int 
  *
  * Il faut avoir accès à la page configurer_avancees
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_configureravancees_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_configureravancees_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_avancees', $id, $qui, $opt);
 }
 
@@ -1692,14 +1821,16 @@ function autoriser_configureravancees_menu_dist(string $faire, string $type, int
  *
  * Il faut avoir accès à la page admin_plugin
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_adminplugin_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_adminplugin_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('configurer', '_plugins', $id, $qui, $opt);
 }
 
@@ -1708,14 +1839,16 @@ function autoriser_adminplugin_menu_dist(string $faire, string $type, int $id, a
  *
  * Il faut avoir accès à la page admin_tech
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_admintech_menu_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_admintech_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('detruire', $type, $id, $qui, $opt);
 }
 
@@ -1724,14 +1857,16 @@ function autoriser_admintech_menu_dist(string $faire, string $type, int $id, arr
  *
  * Il faut être webmestre.
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_queue_purger_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_queue_purger_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('webmestre');
 }
 
@@ -1742,14 +1877,16 @@ function autoriser_queue_purger_dist(string $faire, string $type, int $id, array
  * Il faut être dans l'espace privé (et authentifié),
  * sinon il faut être webmestre (pas de fuite d'informations publiées)
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_echafauder_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_echafauder_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	if (test_espace_prive()) {
 		return intval($qui['id_auteur']) ? true : false;
 	} else {
@@ -1856,12 +1993,14 @@ function verifier_table_non_vide($table = 'spip_rubriques') {
  * en `false`. Pour un nouveau mode il suffit de définir l'autorisation
  * spécifique.
  *
- * @param  string $faire Action demandée
- * @param  string $quoi Statut demandé
- * @param  int $id Identifiant éventuel, par exemple de rubrique
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  */
 function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
 
@@ -1881,14 +2020,16 @@ function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
  *
  * Il faut être administrateur complet
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          false
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_inscription_relancer_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_inscription_relancer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return $qui['statut'] == '0minirezo' and !$qui['restreint'];
 }
 
@@ -1897,13 +2038,15 @@ function autoriser_inscription_relancer_dist(string $faire, string $type, int $i
  *
  * Il faut être webmestre
  *
- * @param  string $faire Action demandée
- * @param  string $type Type d'objet sur lequel appliquer l'action
- * @param  int $id Identifiant de l'objet
- * @param  array $qui Description de l'auteur demandant l'autorisation
- * @param  array $opt Options de cette autorisation
- * @return bool          true s'il a le droit, false sinon
+ * @see autoriser()
+ * 
+ * @param string $faire Action demandée
+ * @param string $type Type d'objet ou élément
+ * @param int|string|null $id Identifiant
+ * @param array $qui Description de l'auteur demandant l'autorisation
+ * @param array $opt Options de cette autorisation
+ * @return bool true s'il a le droit, false sinon
  **/
-function autoriser_phpinfos_dist(string $faire, string $type, int $id, array $qui, array $opt): bool {
+function autoriser_phpinfos_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return autoriser('webmestre');
 }
