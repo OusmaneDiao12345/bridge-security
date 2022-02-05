@@ -294,7 +294,7 @@ function autoriser_exception(string $faire, ?string $type = '', $id = null, $aut
  **/
 function autoriser_defaut_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		$qui['statut'] == '0minirezo'
+		$qui['statut'] === '0minirezo'
 		and !$qui['restreint'];
 }
 
@@ -315,7 +315,7 @@ function autoriser_defaut_dist(string $faire, string $type, $id, array $qui, arr
  * @return bool true s'il a le droit, false sinon
  */
 function autoriser_loger_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	if ($qui['statut'] == '5poubelle') {
+	if ($qui['statut'] === '5poubelle') {
 		return false;
 	}
 	return true;
@@ -490,7 +490,7 @@ function autoriser_changerlangue_dist(string $faire, string $type, $id, array $q
 		$multi_secteurs = lire_config('multi_secteurs');
 		$champs = objet_info($type, 'field');
 		if (
-			$multi_secteurs == 'oui'
+			$multi_secteurs === 'oui'
 			and array_key_exists('id_rubrique', $champs)
 		) {
 			// multilinguisme par secteur et objet rattaché à une rubrique
@@ -585,7 +585,7 @@ function autoriser_dater_dist(string $faire, string $type, $id, array $qui, arra
 	if (
 		in_array($statut, $statuts_publies)
 		// Ou cas particulier géré en dur ici pour les articles
-		or ($statut == 'prop' and $type == 'article' and $GLOBALS['meta']['post_dates'] == 'non')
+		or ($statut === 'prop' and $type === 'article' and $GLOBALS['meta']['post_dates'] === 'non')
 	) {
 		return autoriser('modifier', $type, $id);
 	}
@@ -628,7 +628,7 @@ function autoriser_instituer_dist(string $faire, string $type, $id, array $qui, 
  **/
 function autoriser_rubrique_publierdans_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		($qui['statut'] == '0minirezo')
+		($qui['statut'] === '0minirezo')
 		and (
 			!$qui['restreint'] or !$id
 			or in_array($id, $qui['restreint'])
@@ -674,7 +674,7 @@ function autoriser_rubrique_creer_dist(string $faire, string $type, $id, array $
  **/
 function autoriser_rubrique_creerrubriquedans_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		($id or ($qui['statut'] == '0minirezo' and !$qui['restreint']))
+		($id or ($qui['statut'] === '0minirezo' and !$qui['restreint']))
 		and autoriser('voir', 'rubrique', $id)
 		and autoriser('publierdans', 'rubrique', $id);
 }
@@ -839,7 +839,7 @@ function autoriser_article_creer_dist(string $faire, string $type, $id, array $q
  * @return bool true s'il a le droit, false sinon
  */
 function autoriser_article_voir_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	if ($qui['statut'] == '0minirezo') {
+	if ($qui['statut'] === '0minirezo') {
 		return true;
 	}
 	// cas des articles : depend du statut de l'article et de l'auteur
@@ -887,11 +887,11 @@ function autoriser_voir_dist(string $faire, string $type, $id, array $qui, array
 		return $f($faire, $type, $id, $qui, $opt);
 	}
 
-	if ($qui['statut'] == '0minirezo') {
+	if ($qui['statut'] === '0minirezo') {
 		return true;
 	}
 	// admins et redacteurs peuvent voir un auteur
-	if ($type == 'auteur') {
+	if ($type === 'auteur') {
 		return in_array($qui['statut'], ['0minirezo', '1comite']);
 	}
 	// sinon par defaut tout est visible
@@ -922,8 +922,8 @@ function autoriser_webmestre_dist(string $faire, string $type, $id, array $qui, 
 	return
 		(defined('_ID_WEBMESTRES') ?
 			in_array($qui['id_auteur'], explode(':', _ID_WEBMESTRES))
-			: $qui['webmestre'] == 'oui')
-		and $qui['statut'] == '0minirezo'
+			: $qui['webmestre'] === 'oui')
+		and $qui['statut'] === '0minirezo'
 		and !$qui['restreint'];
 }
 
@@ -943,7 +943,7 @@ function autoriser_webmestre_dist(string $faire, string $type, $id, array $qui, 
  **/
 function autoriser_configurer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		$qui['statut'] == '0minirezo'
+		$qui['statut'] === '0minirezo'
 		and !$qui['restreint'];
 }
 
@@ -963,7 +963,7 @@ function autoriser_configurer_dist(string $faire, string $type, $id, array $qui,
  **/
 function autoriser_sauvegarder_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		$qui['statut'] == '0minirezo';
+		$qui['statut'] === '0minirezo';
 }
 
 /**
@@ -1002,7 +1002,7 @@ function autoriser_detruire_dist(string $faire, string $type, $id, array $qui, a
 function autoriser_auteur_previsualiser_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	// les admins peuvent "previsualiser" une page auteur
 	if (
-		$qui['statut'] == '0minirezo'
+		$qui['statut'] === '0minirezo'
 		and !$qui['restreint']
 	) {
 		return true;
@@ -1045,7 +1045,7 @@ function autoriser_auteur_previsualiser_dist(string $faire, string $type, $id, a
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_auteur_creer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return ($qui['statut'] == '0minirezo');
+	return ($qui['statut'] === '0minirezo');
 }
 
 
@@ -1066,6 +1066,7 @@ function autoriser_auteur_creer_dist(string $faire, string $type, $id, array $qu
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
+	$id = intval($id);
 
 	// Si pas admin : seulement le droit de modifier ses donnees perso, mais pas statut ni login
 	// la modif de l'email doit etre verifiee ou notifiee si possible, mais c'est a l'interface de gerer ca
@@ -1088,7 +1089,7 @@ function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array 
 		if (isset($opt['webmestre']) and $opt['webmestre']) {
 			return false;
 		} elseif (
-			(isset($opt['statut']) and ($opt['statut'] == '0minirezo'))
+			(isset($opt['statut']) and ($opt['statut'] === '0minirezo'))
 			or (isset($opt['restreintes']) and $opt['restreintes'])
 		) {
 			return false;
@@ -1171,7 +1172,7 @@ function autoriser_associerauteurs_dist(string $faire, string $type, $id, array 
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_chargerftp_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return $qui['statut'] == '0minirezo';
+	return $qui['statut'] === '0minirezo';
 }
 
 /**
@@ -1189,7 +1190,7 @@ function autoriser_chargerftp_dist(string $faire, string $type, $id, array $qui,
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_debug_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return $qui['statut'] == '0minirezo';
+	return $qui['statut'] === '0minirezo';
 }
 
 /**
@@ -1307,8 +1308,9 @@ function autoriser_rubrique_iconifier_dist(string $faire, string $type, $id, arr
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_auteur_iconifier_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
+	$id = intval($id);
 	return (($id == $qui['id_auteur']) or
-		(($qui['statut'] == '0minirezo') and !$qui['restreint']));
+		(($qui['statut'] === '0minirezo') and !$qui['restreint']));
 }
 
 /**
@@ -1497,7 +1499,7 @@ function autoriser_configurerpreferences_dist(string $faire, string $type, $id, 
  **/
 function autoriser_menudeveloppement_menugrandeentree_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return (isset($GLOBALS['visiteur_session']['prefs']['activer_menudev'])
-		and $GLOBALS['visiteur_session']['prefs']['activer_menudev'] == 'oui');
+		and $GLOBALS['visiteur_session']['prefs']['activer_menudev'] === 'oui');
 }
 
 /**
@@ -1683,7 +1685,7 @@ function autoriser_auteurcreer_menu_dist(string $faire, string $type, $id, array
 function autoriser_visiteurs_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	include_spip('base/abstract_sql');
 	return
-		$qui['statut'] == '0minirezo' and !$qui['restreint']
+		$qui['statut'] === '0minirezo' and !$qui['restreint']
 		and (
 			$GLOBALS['meta']['accepter_visiteurs'] != 'non'
 			or sql_countsel('spip_auteurs', 'statut in ("6forum", "nouveau")') > 0
@@ -1705,7 +1707,7 @@ function autoriser_visiteurs_menu_dist(string $faire, string $type, $id, array $
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_suiviedito_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return $qui['statut'] == '0minirezo';
+	return $qui['statut'] === '0minirezo';
 }
 
 /**
@@ -1723,7 +1725,7 @@ function autoriser_suiviedito_menu_dist(string $faire, string $type, $id, array 
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_synchro_menu_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return $qui['statut'] == '0minirezo';
+	return $qui['statut'] === '0minirezo';
 }
 
 /**
@@ -2007,9 +2009,9 @@ function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
 	$s = array_search($quoi, $GLOBALS['liste_des_statuts']);
 	switch ($s) {
 		case 'info_redacteurs':
-			return ($GLOBALS['meta']['accepter_inscriptions'] == 'oui');
+			return ($GLOBALS['meta']['accepter_inscriptions'] === 'oui');
 		case 'info_visiteurs':
-			return ($GLOBALS['meta']['accepter_visiteurs'] == 'oui' or $GLOBALS['meta']['forums_publics'] == 'abo');
+			return ($GLOBALS['meta']['accepter_visiteurs'] === 'oui' or $GLOBALS['meta']['forums_publics'] === 'abo');
 	}
 
 	return false;
@@ -2030,7 +2032,7 @@ function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
  * @return bool true s'il a le droit, false sinon
  **/
 function autoriser_inscription_relancer_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
-	return $qui['statut'] == '0minirezo' and !$qui['restreint'];
+	return $qui['statut'] === '0minirezo' and !$qui['restreint'];
 }
 
 /**
