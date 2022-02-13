@@ -367,7 +367,7 @@ function auth_administrer($fonction, $args, $defaut = false) {
 		$auth = charger_fonction($auth_methode, 'auth', true)
 		and function_exists($f = "auth_{$auth_methode}_$fonction")
 	) {
-		$res = call_user_func_array($f, $args);
+		$res = $f(...$args);
 	} else {
 		$res = $defaut;
 	}

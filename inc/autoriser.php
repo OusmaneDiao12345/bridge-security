@@ -111,9 +111,7 @@ if (!function_exists('autoriser')) {
 			pipeline('autoriser');
 		}
 
-		$args = func_get_args();
-
-		return call_user_func_array('autoriser_dist', $args);
+		return autoriser_dist($faire, $type, $id, $qui, $opt);
 	}
 }
 
