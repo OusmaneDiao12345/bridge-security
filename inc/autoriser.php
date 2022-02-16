@@ -236,7 +236,7 @@ $GLOBALS['autoriser_exception'] = [];
  * Accorder une autorisation exceptionnelle pour le hit en cours, ou la révoquer
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant (* pour tous les ids)
@@ -282,7 +282,7 @@ function autoriser_exception(string $faire, ?string $type = '', $id = null, $aut
  * Les admins complets OK, les autres non
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -297,14 +297,14 @@ function autoriser_defaut_dist(string $faire, string $type, $id, array $qui, arr
 }
 
 /**
- * Autorisation à se loger ? 
- * 
+ * Autorisation à se loger ?
+ *
  * Retourne true pour tous les statuts sauf 5poubelle
  * Peut être surchargée pour interdire statut=nouveau à se connecter
  * et forcer l'utilisation du lien de confirmation email pour valider le compte
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -323,7 +323,7 @@ function autoriser_loger_dist(string $faire, string $type, $id, array $qui, arra
  * Autorisation d'accès à l'espace privé ?
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -342,7 +342,7 @@ function autoriser_ecrire_dist(string $faire, string $type, $id, array $qui, arr
  * peut-être surchargée au cas par cas
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -361,7 +361,7 @@ function autoriser_creer_dist(string $faire, string $type, $id, array $qui, arra
  * @uses decrire_token_previsu()
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -469,7 +469,7 @@ function test_previsualiser_objet_champ(string $type = '', $id = null, array $qu
  * Autorisation de changer de langue un contenu
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -529,7 +529,7 @@ function autoriser_changerlangue_dist(string $faire, string $type, $id, array $q
  * Autorisation de changer le lien de traduction
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -545,7 +545,7 @@ function autoriser_changertraduction_dist(string $faire, string $type, $id, arra
  * Autorisation de changer la date d'un contenu
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -598,7 +598,7 @@ function autoriser_dater_dist(string $faire, string $type, $id, array $qui, arra
  * Par défaut, il faut l'autorisation de modifier le contenu
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -616,7 +616,7 @@ function autoriser_instituer_dist(string $faire, string $type, $id, array $qui, 
  * Il faut être administrateur ou administrateur restreint de la rubrique
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -639,7 +639,7 @@ function autoriser_rubrique_publierdans_dist(string $faire, string $type, $id, a
  * Il faut être administrateur pour pouvoir publier à la racine
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -662,7 +662,7 @@ function autoriser_rubrique_creer_dist(string $faire, string $type, $id, array $
  * Il faut être administrateur et pouvoir publier dans la rubrique
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -683,7 +683,7 @@ function autoriser_rubrique_creerrubriquedans_dist(string $faire, string $type, 
  * Il faut pouvoir voir la rubrique et pouvoir créer un article…
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -705,7 +705,7 @@ function autoriser_rubrique_creerarticledans_dist(string $faire, string $type, $
  * Il faut pouvoir publier dans cette rubrique
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -724,7 +724,7 @@ function autoriser_rubrique_modifier_dist(string $faire, string $type, $id, arra
  * Il faut quelle soit vide (pas d'enfant) et qu'on ait le droit de la modifier
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -766,7 +766,7 @@ function autoriser_rubrique_supprimer_dist(string $faire, string $type, $id, arr
  * ou, si on change le statut en proposé ou préparation être auteur de l'article
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -800,7 +800,7 @@ function autoriser_article_modifier_dist(string $faire, string $type, $id, array
  * Il faut qu'une rubrique existe et être au moins rédacteur
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -828,7 +828,7 @@ function autoriser_article_creer_dist(string $faire, string $type, $id, array $q
  * la liste des status autorisés en fonction de $qui['statut']
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -868,7 +868,7 @@ function autoriser_article_voir_dist(string $faire, string $type, $id, array $qu
  * Tout est visible par défaut, sauf les auteurs où il faut au moins être rédacteur.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -908,7 +908,7 @@ function autoriser_voir_dist(string $faire, string $type, $id, array $qui, array
  * soit on regarde l'état "webmestre" de l'auteur
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -931,7 +931,7 @@ function autoriser_webmestre_dist(string $faire, string $type, $id, array $qui, 
  * Il faut être administrateur complet
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -951,7 +951,7 @@ function autoriser_configurer_dist(string $faire, string $type, $id, array $qui,
  * Il faut être administrateur (y compris restreint)
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -970,7 +970,7 @@ function autoriser_sauvegarder_dist(string $faire, string $type, $id, array $qui
  * Il faut être webmestre
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -989,7 +989,7 @@ function autoriser_detruire_dist(string $faire, string $type, $id, array $qui, a
  * ait au moins publié un article
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1034,7 +1034,7 @@ function autoriser_auteur_previsualiser_dist(string $faire, string $type, $id, a
  * @see auteur_instituer()
  * @see autoriser_auteur_modifier_dist()
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1055,7 +1055,7 @@ function autoriser_auteur_creer_dist(string $faire, string $type, $id, array $qu
  * avec des droits supérieurs au sien.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1142,7 +1142,7 @@ function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array 
  * Il faut pouvoir modifier l'objet en question
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1161,7 +1161,7 @@ function autoriser_associerauteurs_dist(string $faire, string $type, $id, array 
  * Il faut être administrateur.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1179,7 +1179,7 @@ function autoriser_chargerftp_dist(string $faire, string $type, $id, array $qui,
  * Il faut être administrateur.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1261,7 +1261,7 @@ function liste_rubriques_auteur($id_auteur, $raz = false) {
  * Il faut pouvoir prévisualiser.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1279,7 +1279,7 @@ function autoriser_rubrique_previsualiser_dist(string $faire, string $type, $id,
  * Il faut pouvoir publier dans la rubrique.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1297,7 +1297,7 @@ function autoriser_rubrique_iconifier_dist(string $faire, string $type, $id, arr
  * Il faut un administrateur ou que l'auteur soit celui qui demande l'autorisation
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1317,7 +1317,7 @@ function autoriser_auteur_iconifier_dist(string $faire, string $type, $id, array
  * Il faut pouvoir modifier l'objet
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1338,7 +1338,7 @@ function autoriser_iconifier_dist(string $faire, string $type, $id, array $qui, 
  * Fonction sans surprise pour permettre les tests.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1357,7 +1357,7 @@ function autoriser_ok_dist(string $faire, string $type, $id, array $qui, array $
  * Fonction sans surprise pour permettre les tests.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1375,7 +1375,7 @@ function autoriser_niet_dist(string $faire, string $type, $id, array $qui, array
  * Il faut pouvoir la détruire (et ne pas être en cours de réinstallation)
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1397,7 +1397,7 @@ function autoriser_base_reparer_dist(string $faire, string $type, $id, array $qu
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1415,7 +1415,7 @@ function autoriser_infosperso_dist(string $faire, string $type, $id, array $qui,
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1433,7 +1433,7 @@ function autoriser_langage_configurer_dist(string $faire, string $type, $id, arr
  * Calquée sur l'autorisation de voir le formulaire configurer_langage
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1451,7 +1451,7 @@ function autoriser_configurerlangage_dist(string $faire, string $type, $id, arra
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1469,7 +1469,7 @@ function autoriser_preferences_configurer_dist(string $faire, string $type, $id,
  * Calquée sur l'autorisation de voir le formulaire configurer_preferences
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1487,7 +1487,7 @@ function autoriser_configurerpreferences_dist(string $faire, string $type, $id, 
  * Dépend de la préférences utilisateur
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1507,7 +1507,7 @@ function autoriser_menudeveloppement_menugrandeentree_dist(string $faire, string
  * sont visibles de tous
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1525,7 +1525,7 @@ function autoriser_menugrandeentree_dist(string $faire, string $type, $id, array
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1543,7 +1543,7 @@ function autoriser_auteurs_voir_dist(string $faire, string $type, $id, array $qu
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1561,7 +1561,7 @@ function autoriser_auteurs_menu_dist(string $faire, string $type, $id, array $qu
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1579,7 +1579,7 @@ function autoriser_articles_voir_dist(string $faire, string $type, $id, array $q
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1597,7 +1597,7 @@ function autoriser_articles_menu_dist(string $faire, string $type, $id, array $q
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1615,7 +1615,7 @@ function autoriser_rubriques_voir_dist(string $faire, string $type, $id, array $
  * Toujours OK
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1633,7 +1633,7 @@ function autoriser_rubriques_menu_dist(string $faire, string $type, $id, array $
  * Il faut au moins une rubrique présente.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1654,7 +1654,7 @@ function autoriser_articlecreer_menu_dist(string $faire, string $type, $id, arra
  * @see autoriser_auteur_creer_dist()
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1672,7 +1672,7 @@ function autoriser_auteurcreer_menu_dist(string $faire, string $type, $id, array
  * Être admin complet et il faut qu'il en existe ou que ce soit activé en config
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1696,7 +1696,7 @@ function autoriser_visiteurs_menu_dist(string $faire, string $type, $id, array $
  * Il faut être administrateur (y compris restreint).
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1714,7 +1714,7 @@ function autoriser_suiviedito_menu_dist(string $faire, string $type, $id, array 
  * Il faut être administrateur (y compris restreint).
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1732,7 +1732,7 @@ function autoriser_synchro_menu_dist(string $faire, string $type, $id, array $qu
  * Il faut avoir accès à la page configurer_interactions
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1750,7 +1750,7 @@ function autoriser_configurerinteractions_menu_dist(string $faire, string $type,
  * Il faut avoir accès à la page configurer_langue
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1768,7 +1768,7 @@ function autoriser_configurerlangue_menu_dist(string $faire, string $type, $id, 
  * Il faut avoir accès à la page configurer_multilinguisme
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1786,7 +1786,7 @@ function autoriser_configurermultilinguisme_menu_dist(string $faire, string $typ
  * Il faut avoir accès à la page configurer_contenu
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1804,7 +1804,7 @@ function autoriser_configurercontenu_menu_dist(string $faire, string $type, $id,
  * Il faut avoir accès à la page configurer_avancees
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1822,7 +1822,7 @@ function autoriser_configureravancees_menu_dist(string $faire, string $type, $id
  * Il faut avoir accès à la page admin_plugin
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1840,7 +1840,7 @@ function autoriser_adminplugin_menu_dist(string $faire, string $type, $id, array
  * Il faut avoir accès à la page admin_tech
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1858,7 +1858,7 @@ function autoriser_admintech_menu_dist(string $faire, string $type, $id, array $
  * Il faut être webmestre.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1878,7 +1878,7 @@ function autoriser_queue_purger_dist(string $faire, string $type, $id, array $qu
  * sinon il faut être webmestre (pas de fuite d'informations publiées)
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -1994,7 +1994,7 @@ function verifier_table_non_vide($table = 'spip_rubriques') {
  * spécifique.
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -2021,7 +2021,7 @@ function autoriser_inscrireauteur_dist($faire, $quoi, $id, $qui, $opt) {
  * Il faut être administrateur complet
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant
@@ -2039,7 +2039,7 @@ function autoriser_inscription_relancer_dist(string $faire, string $type, $id, a
  * Il faut être webmestre
  *
  * @see autoriser()
- * 
+ *
  * @param string $faire Action demandée
  * @param string $type Type d'objet ou élément
  * @param int|string|null $id Identifiant

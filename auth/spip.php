@@ -120,12 +120,12 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 	if ($shanext and !$phpauth) {
 		include_spip('inc/acces'); // pour creer_uniqid
 		@sql_update(
-			'spip_auteurs', 
+			'spip_auteurs',
 			[
 				'alea_actuel' => 'alea_futur',
 				'pass' => sql_quote($shanext, $serveur, 'text'),
 				'alea_futur' => sql_quote(creer_uniqid(), $serveur, 'text')
-			], 
+			],
 			'id_auteur=' . $row['id_auteur'] . ' AND pass IN (' . sql_quote(
 				$shapass,
 				$serveur,
@@ -200,7 +200,7 @@ function auth_spip_autoriser_modifier_login(string $serveur = ''): bool {
 	// les fonctions d'ecriture sur base distante sont encore incompletes
 	if (strlen($serveur)) {
 		return false;
-	} 
+	}
 	return true;
 }
 
@@ -364,7 +364,7 @@ function auth_spip_autoriser_modifier_pass(string $serveur = ''): bool {
 	// les fonctions d'ecriture sur base distante sont encore incompletes
 	if (strlen($serveur)) {
 		return false;
-	} 
+	}
 	return true;
 }
 
@@ -445,7 +445,7 @@ function auth_spip_modifier_pass($login, $new_pass, $id_auteur, $serveur = '') {
  * @param string $serveur
  * @return void
  */
-function auth_spip_synchroniser_distant($id_auteur, $champs, $options = [], string $serveur = '') : void {
+function auth_spip_synchroniser_distant($id_auteur, $champs, $options = [], string $serveur = ''): void {
 	// ne rien faire pour une base distante : on ne sait pas regenerer les htaccess
 	if (strlen($serveur)) {
 		return;
