@@ -326,11 +326,7 @@ function effacer_low_sec($id_auteur) {
  */
 function initialiser_sel() {
 	if (!isset($GLOBALS['htsalt'])) {
-		if (CRYPT_MD5) {
-			$GLOBALS['htsalt'] = '$1$' . creer_pass_aleatoire();
-		} else {
-			$GLOBALS['htsalt'] = '';
-		}
+		$GLOBALS['htsalt'] = '$1$' . creer_pass_aleatoire();
 	}
 	return $GLOBALS['htsalt'];
 }
