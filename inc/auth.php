@@ -736,7 +736,8 @@ function lire_php_auth($login, $pw, $serveur = '') {
 
 	if (!$row) {
 		if (
-			spip_connect_ldap($serveur)
+			include_spip('inc/auth')
+			and auth_ldap_connect($serveur)
 			and $auth_ldap = charger_fonction('ldap', 'auth', true)
 		) {
 			return $auth_ldap($login, $pw, $serveur, true);
