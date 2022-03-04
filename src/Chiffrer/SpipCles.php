@@ -58,7 +58,7 @@ final class SpipCles {
 		return $key ^ $meta;
 	}
 
-	/** Renvoyer le secret des authentifications */	
+	/** Renvoyer le secret des authentifications */
 	public function getSecretAuth(bool $autoInit = false): ?string {
 		return $this->getKey('secret_des_auth', $autoInit);
 	}

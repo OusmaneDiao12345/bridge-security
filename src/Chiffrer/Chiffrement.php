@@ -12,14 +12,13 @@
 
 namespace Spip\Chiffrer;
 
-/** 
- * Chiffrement / déchiffrement symétrique. 
- * 
+/**
+ * Chiffrement / déchiffrement symétrique.
+ *
  * @link https://fr.wikipedia.org/wiki/Cryptographie_sym%C3%A9trique
  * @link https://www.php.net/manual/fr/book.sodium.php
  */
 class Chiffrement {
-
 	/** Chiffre un message en utilisant une clé ou un mot de passe */
 	public static function chiffrer(
 		string $message,
@@ -40,7 +39,7 @@ class Chiffrement {
 		return $encoded;
 	}
 
-	/** Déchiffre un message en utilisant une clé ou un mot de passe */	
+	/** Déchiffre un message en utilisant une clé ou un mot de passe */
 	public static function dechiffrer(
 		string $encoded,
 		#[\SensitiveParameter]
@@ -48,9 +47,9 @@ class Chiffrement {
 	): ?string {
 		$decoded = base64_decode($encoded);
 		$salt = substr($decoded, 0, \SODIUM_CRYPTO_PWHASH_SALTBYTES);
-        $nonce = substr($decoded, \SODIUM_CRYPTO_PWHASH_SALTBYTES, \SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $encrypted = substr($decoded, \SODIUM_CRYPTO_PWHASH_SALTBYTES + \SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-        $key = self::deriveKeyFromPassword($key, $salt);
+		$nonce = substr($decoded, \SODIUM_CRYPTO_PWHASH_SALTBYTES, \SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$encrypted = substr($decoded, \SODIUM_CRYPTO_PWHASH_SALTBYTES + \SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+		$key = self::deriveKeyFromPassword($key, $salt);
 		$padded_message = sodium_crypto_secretbox_open($encrypted, $nonce, $key);
 		sodium_memzero($key);
 		sodium_memzero($nonce);
@@ -83,15 +82,15 @@ class Chiffrement {
 		if (strlen($password) === \SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
 			return $password;
 		}
-        $key = sodium_crypto_pwhash(
-            \SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
-            $password,
-            $salt,
-            \SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
-            \SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
-        );
-        sodium_memzero($password);
+		$key = sodium_crypto_pwhash(
+			\SODIUM_CRYPTO_SECRETBOX_KEYBYTES,
+			$password,
+			$salt,
+			\SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+			\SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+		);
+		sodium_memzero($password);
 
-        return $key;
+		return $key;
 	}
 }
