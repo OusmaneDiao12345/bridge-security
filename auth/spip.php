@@ -101,6 +101,7 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 				if ($cles->restore($row['backup_cles'], $pass, $row['pass'], $row['id_auteur'])) {
 					spip_log('Les cles secretes ont ete restaurées avec le backup du webmestre #' . $row['id_auteur'], 'auth' . _LOG_INFO_IMPORTANTE);
 					$cles->save();
+					$secret = $cles->getSecretAuth();
 				}
 				else {
 					spip_log('Pas de cle secrete disponible (fichier config/cle.php absent ?) mais le backup du webmestre #' . $row['id_auteur'] . " n'est pas valide", 'auth' . _LOG_ERREUR);
