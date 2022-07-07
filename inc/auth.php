@@ -65,6 +65,31 @@ function inc_auth_dist() {
 }
 
 /**
+ * Vérifier qu'un mot de passe saisi pour confirmer une action est bien celui de l'auteur connecté
+ * @param string $password
+ * @return bool
+ */
+function auth_controler_password_auteur_connecte(string $password): bool {
+
+	if (
+		empty($GLOBALS['visiteur_session']['id_auteur'])
+		or empty($GLOBALS['visiteur_session']['login'])
+	) {
+		return false;
+	}
+
+	$auth = auth_identifier_login($GLOBALS['visiteur_session']['login'], $password);
+	if (
+		is_array($auth)
+		and $auth['id_auteur'] == $GLOBALS['visiteur_session']['id_auteur']
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * fonction appliquee par ecrire/index sur le resultat de la precedente
  * en cas de refus de connexion.
  * Retourne un message a afficher ou redirige illico.
