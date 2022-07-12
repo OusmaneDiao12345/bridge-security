@@ -78,7 +78,7 @@ function auth_controler_password_auteur_connecte(string $password): bool {
 		return false;
 	}
 
-	$auth = auth_identifier_login($GLOBALS['visiteur_session']['login'], $password);
+	$auth = auth_identifier_login($GLOBALS['visiteur_session']['login'], $password, '', true);
 	if (
 		is_array($auth)
 		and $auth['id_auteur'] == $GLOBALS['visiteur_session']['id_auteur']
@@ -502,11 +502,11 @@ function auth_informer_login($login, $serveur = '') {
  * @param string $serveur
  * @return mixed
  */
-function auth_identifier_login($login, $password, $serveur = '') {
+function auth_identifier_login($login, $password, $serveur = '', bool $phpauth = false) {
 	$erreur = '';
 	foreach ($GLOBALS['liste_des_authentifications'] as $methode) {
 		if ($auth = charger_fonction($methode, 'auth', true)) {
-			$auteur = $auth($login, $password, $serveur);
+			$auteur = $auth($login, $password, $serveur, $phpauth);
 			if (is_array($auteur) and count($auteur)) {
 				spip_log("connexion de $login par methode $methode");
 				$auteur['auth'] = $methode;
