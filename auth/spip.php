@@ -74,7 +74,6 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 
 	$hash = null;
 	switch (strlen($row['pass'])) {
-
 		// legacy = md5 ou sha256
 		case 32:
 			// tres anciens mots de passe encodes en md5(alea.pass)
@@ -88,7 +87,7 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 				$methode = 'sha256';
 			}
 			if ($row['pass'] === $hash) {
-				spip_log("validation du mot de passe pour l'auteur #".$row['id_auteur']." $login via $methode", 'auth' . _LOG_DEBUG);
+				spip_log("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via $methode", 'auth' . _LOG_DEBUG);
 				// ce n'est pas cense arriver, mais si jamais c'est un backup inutilisable, il faut le nettoyer pour ne pas bloquer la creation d'une nouvelle cle d'auth
 				if (!empty($row['backup_cles'])) {
 					sql_updateq('spip_auteurs', ['backup_cles' => ''], 'id_auteur=' . intval($row['id_auteur']));
@@ -129,7 +128,7 @@ function auth_spip_dist($login, $pass, $serveur = '', $phpauth = false) {
 				unset($row);
 			}
 			else {
-				spip_log("validation du mot de passe pour l'auteur #".$row['id_auteur']." $login via Password::verifier", 'auth' . _LOG_DEBUG);
+				spip_log("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via Password::verifier", 'auth' . _LOG_DEBUG);
 			}
 			break;
 	}
