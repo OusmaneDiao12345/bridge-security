@@ -163,6 +163,9 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 		$qui = array_merge(['statut' => '', 'id_auteur' => 0, 'webmestre' => 'non'], $qui);
 	} elseif (is_numeric($qui)) {
 		$qui = sql_fetsel('*', 'spip_auteurs', 'id_auteur=' . $qui);
+		if (!$qui) {
+			return false;
+		}
 	}
 
 	// Admins restreints, on construit ici (pas generique mais...)
@@ -1128,7 +1131,7 @@ function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array 
 		// ou si les webmestres sont fixes par constante (securite)
 		return false;
 	} // et modifier un webmestre si il ne l'est pas lui meme
-	elseif (intval($id) and autoriser('webmestre', '', 0, $id) and !autoriser('webmestre')) {
+	elseif (intval($id) and !autoriser('webmestre') and autoriser('webmestre', '', 0, $id)) {
 		return false;
 	} else {
 		return true;
