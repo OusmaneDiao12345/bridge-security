@@ -271,7 +271,6 @@ function auth_init_droits($row) {
 		$GLOBALS['visiteur_session']['prefs']['couleur'] = 2;
 		$GLOBALS['visiteur_session']['prefs']['display'] = 2;
 		$GLOBALS['visiteur_session']['prefs']['display_navigation'] = 'navigation_avec_icones';
-		$GLOBALS['visiteur_session']['prefs']['display_outils'] = 'oui';
 	}
 
 	$GLOBALS['visiteur_session'] = pipeline(
