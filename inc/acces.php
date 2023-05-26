@@ -218,7 +218,7 @@ function generer_url_api_low_sec(string $script, string $format, string $fond, s
 	$cle = afficher_low_sec($id_auteur, "$script/$format $fond $args");
 	$path = "$id_auteur/$cle/$format/$fond" . ($path ? "/$path" : '');
 
-	return generer_url_api($script, $path, $args, $no_entities = false, $public);
+	return generer_url_api($script, $path, $args, $no_entities, $public);
 }
 
 /**
