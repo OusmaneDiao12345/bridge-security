@@ -310,8 +310,8 @@ function ecrire_acces() {
 
 /**
  * Generer le fichier de htpasswd contenant les htpass
- * @param $htpasswd
- * @param $htpasswd_admin
+ * @param string $htpasswd
+ * @param string $htpasswd_admin
  */
 function generer_htpasswd_files($htpasswd, $htpasswd_admin) {
 	if ($generer_htpasswd = charger_fonction('generer_htpasswd_files', 'inc', true)) {

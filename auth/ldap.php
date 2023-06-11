@@ -309,9 +309,9 @@ function auth_ldap_autoriser_modifier_pass($serveur = '') {
  * compte générique defini dans config/ldap.php n'a généralement pas (et
  * ne devrait pas avoir) les droits suffisants pour faire la modification.
  *
- * @param $login
- * @param $new_pass
- * @param $id_auteur
+ * @param string $login
+ * @param string $new_pass
+ * @param int $id_auteur
  * @param string $serveur
  * @return bool
  *    Informe du succès ou de l'echec du changement du mot de passe
