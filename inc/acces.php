@@ -86,7 +86,7 @@ function creer_uniqid() {
 		$s = random_int(0, mt_getrandmax());
 	}
 
-	return uniqid($s, 1);
+	return uniqid((string) $s, true);
 }
 
 /**
