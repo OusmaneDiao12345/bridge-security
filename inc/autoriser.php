@@ -229,8 +229,8 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 	);
 
 	if (!is_bool($a)) {
-	     trigger_error(sprintf("Function %s should returns a boolean instead of %s (casts as boolean). This will trigger fatal error in future versions.", $f, gettype($a)), \E_USER_DEPRECATED);
-	     $a = (bool) $a;
+		 trigger_error(sprintf('Function %s should returns a boolean instead of %s (casts as boolean). This will trigger fatal error in future versions.', $f, gettype($a)), \E_USER_DEPRECATED);
+		 $a = (bool) $a;
 	}
 
 	return $a;
