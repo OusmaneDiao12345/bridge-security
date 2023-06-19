@@ -16,7 +16,7 @@ final class SpipCles {
 	private static array $instances = [];
 
 	private string $file = _DIR_ETC . 'cles.php';
-	private Cles $cles;
+	private readonly Cles $cles;
 
 	public static function instance(string $file = ''): self {
 		if (empty(self::$instances[$file])) {
@@ -99,7 +99,7 @@ final class SpipCles {
 		}
 
 		$sauvegarde = Chiffrement::dechiffrer($backup, $password_clair);
-		$json = json_decode($sauvegarde, true);
+		$json = json_decode($sauvegarde, true, 512, JSON_THROW_ON_ERROR);
 		if (!$json) {
 			return false;
 		}
@@ -171,7 +171,7 @@ final class SpipCles {
 		lire_fichier_securise($this->file, $json);
 		if (
 			$json
-			&& ($json = \json_decode($json, true))
+			&& ($json = \json_decode($json, true, 512, JSON_THROW_ON_ERROR))
 			&& is_array($json)
 		) {
 			return array_map('base64_decode', $json);

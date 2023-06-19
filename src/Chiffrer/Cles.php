@@ -53,6 +53,6 @@ class Cles implements \Countable /* , ContainerInterface */ {
 
 	public function toJson(): string {
 		$json = array_map('base64_encode', $this->keys);
-		return \json_encode($json);
+		return \json_encode($json, JSON_THROW_ON_ERROR);
 	}
 }
