@@ -886,8 +886,7 @@ function autoriser_voir_dist(string $faire, string $type, $id, array $qui, array
  * Est-on webmestre ? Signifie qu'on n'a même pas besoin de passer par ftp
  * pour modifier les fichiers, cf. notamment inc/admin
  *
- * Soit la liste des webmestres est définie via une constante _ID_WEBMESTRES,
- * soit on regarde l'état "webmestre" de l'auteur
+ * On regarde l'état "webmestre" de l'auteur
  *
  * @see autoriser()
  *
@@ -900,9 +899,7 @@ function autoriser_voir_dist(string $faire, string $type, $id, array $qui, array
  **/
 function autoriser_webmestre_dist(string $faire, string $type, $id, array $qui, array $opt): bool {
 	return
-		(defined('_ID_WEBMESTRES')
-			? in_array($qui['id_auteur'], explode(':', (string) _ID_WEBMESTRES))
-			: $qui['webmestre'] === 'oui')
+		$qui['webmestre'] === 'oui'
 		&& $qui['statut'] === '0minirezo'
 		&& !$qui['restreint'];
 }
@@ -1079,32 +1076,26 @@ function autoriser_auteur_modifier_dist(string $faire, string $type, $id, array 
 					} else {
 						return false;
 					}
-				} // id = 0 => creation
-				else {
+				} else {
+					// id = 0 => creation
 					return true;
 				}
 			}
 		}
 	}
 
-	// Un admin complet fait ce qu'il veut
-	// sauf se degrader
+	// Un admin complet fait ce qu'il veut, sauf se degrader
 	if ($id == $qui['id_auteur'] && (isset($opt['statut']) && $opt['statut'])) {
 		return false;
-	} elseif (
-		isset($opt['webmestre'])
-		&& $opt['webmestre']
-		&& (defined('_ID_WEBMESTRES') || !autoriser('webmestre'))
-	) {
-		// et toucher au statut webmestre si il ne l'est pas lui meme
-		// ou si les webmestres sont fixes par constante (securite)
+	} elseif (isset($opt['webmestre']) && $opt['webmestre'] && !autoriser('webmestre')) {
+		// et toucher au statut webmestre si il ne l'est pas lui même
 		return false;
-	} // et modifier un webmestre si il ne l'est pas lui meme
-	elseif ((int) $id && !autoriser('webmestre') && autoriser('webmestre', '', 0, $id)) {
+	} elseif ((int) $id && !autoriser('webmestre') && autoriser('webmestre', '', 0, $id)) {
+		// et modifier un webmestre si il ne l'est pas lui meme
 		return false;
-	} else {
-		return true;
 	}
+
+	return true;
 }
 
 
