@@ -151,7 +151,7 @@ function auth_mode() {
 	//
 	include_spip('inc/session');
 	// Session valide en cours ?
-	if (isset($_COOKIE['spip_session'])) {
+	if ($cookie = lire_cookie_session()) {
 		$session = charger_fonction('session', 'inc');
 		if (
 			($id_auteur = $session()) || $id_auteur === 0 // reprise sur restauration
@@ -250,7 +250,8 @@ function auth_init_droits($row) {
 	$GLOBALS['visiteur_session'] = auth_desensibiliser_session($GLOBALS['visiteur_session']);
 
 	// creer la session au besoin
-	if (!isset($_COOKIE['spip_session'])) {
+	include_spip('inc/session');
+	if (!lire_cookie_session()) {
 		$session = charger_fonction('session', 'inc');
 		$spip_session = $session($row);
 	}
