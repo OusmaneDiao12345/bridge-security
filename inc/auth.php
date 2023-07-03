@@ -247,11 +247,7 @@ function auth_init_droits($row) {
 	$GLOBALS['visiteur_session'] = array_merge((array)$GLOBALS['visiteur_session'], $row);
 
 	// au cas ou : ne pas memoriser les champs sensibles
-	unset($GLOBALS['visiteur_session']['pass']);
-	unset($GLOBALS['visiteur_session']['htpass']);
-	unset($GLOBALS['visiteur_session']['alea_actuel']);
-	unset($GLOBALS['visiteur_session']['alea_futur']);
-	unset($GLOBALS['visiteur_session']['ldap_password']);
+	$GLOBALS['visiteur_session'] = auth_desensibiliser_session($GLOBALS['visiteur_session']);
 
 	// creer la session au besoin
 	if (!isset($_COOKIE['spip_session'])) {
@@ -308,6 +304,22 @@ function auth_init_droits($row) {
 	// Pour les redacteurs, inc_version a fait l'initialisation minimale
 
 	return ''; // i.e. pas de pb.
+}
+
+/**
+ * Enlever les clés sensibles d'une ligne auteur
+ * @param array $auteur
+ * @return array
+ */
+function auth_desensibiliser_session(array $auteur) {
+	$cles_sensibles = ['pass', 'htpass', 'alea_actuel', 'alea_futur', 'ldap_password', 'backup_cles'];
+	foreach ($cles_sensibles as $cle) {
+		if (isset($auteur[$cle])) {
+			unset($auteur[$cle]);
+		}
+	}
+
+	return $auteur;
 }
 
 /**
@@ -475,6 +487,7 @@ function auth_informer_login($login, $serveur = '') {
 	}
 
 	$prefs = @unserialize($row['prefs']);
+	$row = auth_desensibiliser_session($row);
 	$infos = [
 		'id_auteur' => $row['id_auteur'],
 		'login' => $row['login'],
