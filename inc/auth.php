@@ -244,7 +244,7 @@ function auth_init_droits($row) {
 	$GLOBALS['connect_login'] = $row['login'];
 	$GLOBALS['connect_statut'] = $row['statut'];
 
-	$GLOBALS['visiteur_session'] = array_merge((array)$GLOBALS['visiteur_session'], $row);
+	$GLOBALS['visiteur_session'] = array_merge((array) $GLOBALS['visiteur_session'], $row);
 
 	// au cas ou : ne pas memoriser les champs sensibles
 	$GLOBALS['visiteur_session'] = auth_desensibiliser_session($GLOBALS['visiteur_session']);
@@ -308,13 +308,11 @@ function auth_init_droits($row) {
 
 /**
  * Enlever les clés sensibles d'une ligne auteur
- * @param array $auteur
- * @return array
  */
-function auth_desensibiliser_session(array $auteur) {
-	$cles_sensibles = ['pass', 'htpass', 'alea_actuel', 'alea_futur', 'ldap_password', 'backup_cles'];
+function auth_desensibiliser_session(array $auteur): array {
+	$cles_sensibles = ['pass', 'htpass', 'low_sec', 'alea_actuel', 'alea_futur', 'ldap_password', 'backup_cles'];
 	foreach ($cles_sensibles as $cle) {
-		if (isset($auteur[$cle])) {
+		if (array_key_exists($cle, $auteur)) {
 			unset($auteur[$cle]);
 		}
 	}
