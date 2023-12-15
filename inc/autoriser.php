@@ -177,13 +177,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 		'autoriser' . _LOG_DEBUG
 	);
 
-	// passer par objet_type pour avoir les alias
-	// sauf si _ est le premier caractère.
-	if ($type && $type[0] !== '_') {
-		$type = objet_type($type, false);
-	}
-	// et supprimer les _
-	$type = str_replace('_', '', (string) $type);
+	$type = autoriser_type($type);
 
 	// Si une exception a ete decretee plus haut dans le code, l'appliquer
 	if (
@@ -256,12 +250,10 @@ function autoriser_exception(string $faire, ?string $type = '', $id = null, $aut
 	// une static innaccessible par url pour verifier que la globale est positionnee a bon escient
 	static $autorisation;
 	// Tolérance avec certains appels
-	if ($type === null) {
-		$type = '';
-	}
 	if ($id === null) {
 		$id = 0;
 	}
+	$type = autoriser_type($type);
 	if ($autoriser === 'verifier') {
 		return isset($autorisation[$faire][$type][$id]);
 	}
@@ -280,6 +272,25 @@ function autoriser_exception(string $faire, ?string $type = '', $id = null, $aut
 	}
 
 	return false;
+}
+
+/**
+ * Adapte un type pour les autorisations
+ *
+ * Cela sert à trouver le nom des autorisations correspondantes.
+ *
+ * - Si _ en premier caractère, c’est un nom de page
+ * - Sinon, c’est un type d’objet éditorial
+ * - Les _ sont supprimés
+ */
+function autoriser_type(?string $type = ''): string {
+	// passer par objet_type pour avoir les alias
+	// sauf si _ est le premier caractère.
+	if ($type && $type[0] !== '_') {
+		$type = objet_type($type, false);
+	}
+	// et supprimer les _
+	return str_replace('_', '', (string) $type);
 }
 
 
