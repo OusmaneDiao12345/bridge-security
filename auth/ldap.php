@@ -55,7 +55,7 @@ if (!isset($GLOBALS['ldap_attributes']) || !is_array($GLOBALS['ldap_attributes']
  */
 function auth_ldap_dist($login, #[\SensitiveParameter] $pass, $serveur = '', $phpauth = false) {
 
-	#spip_log("ldap $login " . ($pass ? "mdp fourni" : "mdp absent"));
+	#spip_logger()->info("ldap $login " . ($pass ? "mdp fourni" : "mdp absent"));
 
 	// Utilisateur connu ?
 	// si http auth, inutile de reauthentifier: cela
@@ -95,7 +95,7 @@ function auth_ldap_dist($login, #[\SensitiveParameter] $pass, $serveur = '', $ph
 	}
 
 	// sinon echec
-	spip_log("Creation de l'auteur '$login' impossible");
+	spip_logger()->info("Creation de l'auteur '$login' impossible");
 
 	return [];
 }
@@ -130,13 +130,13 @@ function auth_ldap_connect($serveur = '') {
 					'base' => $GLOBALS['ldap_base']
 				];
 			} else {
-				spip_log("connection LDAP $serveur mal definie dans $f");
+				spip_logger()->info("connection LDAP $serveur mal definie dans $f");
 			}
 			if (isset($GLOBALS['ldap_champs'])) {
 				$connexion['ldap']['attributes'] = $GLOBALS['ldap_champs'];
 			}
 		} else {
-			spip_log("connection LDAP $serveur inconnue");
+			spip_logger()->info("connection LDAP $serveur inconnue");
 		}
 	}
 
@@ -214,7 +214,7 @@ function auth_ldap_retrouver($dn, $desc = [], $serveur = '') {
 	// Lire les infos sur l'utilisateur a partir de son DN depuis LDAP
 
 	if (!$ldap = auth_ldap_connect($serveur)) {
-		spip_log("ldap $serveur injoignable");
+		spip_logger()->info("ldap $serveur injoignable");
 
 		return [];
 	}

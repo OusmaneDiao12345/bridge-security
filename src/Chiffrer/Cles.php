@@ -27,7 +27,7 @@ class Cles implements \Countable /* , ContainerInterface */ {
 	public function generate(string $name): string {
 		$key = Chiffrement::keygen();
 		$this->keys[$name] = $key;
-		spip_log("Création de la cle $name", 'chiffrer' . _LOG_INFO_IMPORTANTE);
+		spip_logger('chiffrer')->notice("Création de la cle $name");
 		return $key;
 	}
 

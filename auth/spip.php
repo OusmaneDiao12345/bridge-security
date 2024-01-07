@@ -85,7 +85,7 @@ function auth_spip_dist($login, #[\SensitiveParameter] $pass, $serveur = '', $ph
 				$methode = 'sha256';
 			}
 			if ($row['pass'] === $hash) {
-				spip_log("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via $methode", 'auth' . _LOG_DEBUG);
+				spip_logger('auth')->debug("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via $methode");
 				// ce n'est pas cense arriver, mais si jamais c'est un backup inutilisable, il faut le nettoyer pour ne pas bloquer la creation d'une nouvelle cle d'auth
 				if (!empty($row['backup_cles'])) {
 					sql_updateq('spip_auteurs', ['backup_cles' => ''], 'id_auteur=' . (int) $row['id_auteur']);
@@ -106,18 +106,18 @@ function auth_spip_dist($login, #[\SensitiveParameter] $pass, $serveur = '', $ph
 				&& !empty($row['backup_cles'])
 			) {
 				if ($cles->restore($row['backup_cles'], $pass, $row['pass'], $row['id_auteur'])) {
-					spip_log('Les cles secretes ont ete restaurées avec le backup du webmestre #' . $row['id_auteur'], 'auth' . _LOG_INFO_IMPORTANTE);
+					spip_logger('auth')->notice('Les cles secretes ont ete restaurées avec le backup du webmestre #' . $row['id_auteur']);
 					if ($cles->save()) {
 						$secret = $cles->getSecretAuth();
 					}
 					else {
-						spip_log("Echec restauration des cles : verifier les droits d'ecriture ?", 'auth' . _LOG_ERREUR);
+						spip_logger('auth')->error("Echec restauration des cles : verifier les droits d'ecriture ?");
 						// et on echoue car on ne veut pas que la situation reste telle quelle
 						raler_fichier(_DIR_ETC . 'cles.php');
 					}
 				}
 				else {
-					spip_log('Pas de cle secrete disponible (fichier config/cle.php absent ?) mais le backup du webmestre #' . $row['id_auteur'] . " n'est pas valide", 'auth' . _LOG_ERREUR);
+					spip_logger('auth')->error('Pas de cle secrete disponible (fichier config/cle.php absent ?) mais le backup du webmestre #' . $row['id_auteur'] . " n'est pas valide");
 					sql_updateq('spip_auteurs', ['backup_cles' => ''], 'id_auteur=' . (int) $row['id_auteur']);
 				}
 			}
@@ -126,7 +126,7 @@ function auth_spip_dist($login, #[\SensitiveParameter] $pass, $serveur = '', $ph
 				unset($row);
 			}
 			else {
-				spip_log("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via Password::verifier", 'auth' . _LOG_DEBUG);
+				spip_logger('auth')->error("validation du mot de passe pour l'auteur #" . $row['id_auteur'] . " $login via Password::verifier");
 			}
 			break;
 	}
@@ -218,7 +218,7 @@ function auth_spip_initialiser_secret(bool $force = false): bool {
 
 	// si force, on ne verifie pas la presence d'un backup chez un webmestre
 	if ($force) {
-		spip_log('Pas de cle secrete disponible, on regenere une nouvelle cle forcee - tous les mots de passe sont invalides', 'auth' . _LOG_INFO_IMPORTANTE);
+		spip_logger('auth')->notice('Pas de cle secrete disponible, on regenere une nouvelle cle forcee - tous les mots de passe sont invalides');
 		$secret = $cles->getSecretAuth(true);
 		return true;
 	}
@@ -226,16 +226,16 @@ function auth_spip_initialiser_secret(bool $force = false): bool {
 	$has_backup = sql_allfetsel('id_auteur', 'spip_auteurs', 'statut=' . sql_quote('0minirezo') . ' AND webmestre=' . sql_quote('oui') . " AND backup_cles!=''");
 	$has_backup = array_column($has_backup, 'id_auteur');
 	if ($has_backup === []) {
-		spip_log("Pas de cle secrete disponible, et aucun webmestre n'a de backup, on regenere une nouvelle cle - tous les mots de passe sont invalides", 'auth' . _LOG_INFO_IMPORTANTE);
+		spip_logger('auth')->notice("Pas de cle secrete disponible, et aucun webmestre n'a de backup, on regenere une nouvelle cle - tous les mots de passe sont invalides");
 		if ($secret = $cles->getSecretAuth(true)) {
 			return true;
 		}
-		spip_log("Echec generation d'une nouvelle cle : verifier les droits d'ecriture ?", 'auth' . _LOG_ERREUR);
+		spip_logger('auth')->error("Echec generation d'une nouvelle cle : verifier les droits d'ecriture ?");
 		// et on echoue car on ne veut pas que la situation reste telle quelle
 		raler_fichier(_DIR_ETC . 'cles.php');
 	}
 	else {
-		spip_log('Pas de cle secrete disponible (fichier config/cle.php absent ?) un des webmestres #' . implode(', #', $has_backup) . ' doit se connecter pour restaurer son backup des cles', 'auth' . _LOG_ERREUR);
+		spip_logger('auth')->error('Pas de cle secrete disponible (fichier config/cle.php absent ?) un des webmestres #' . implode(', #', $has_backup) . ' doit se connecter pour restaurer son backup des cles');
 	}
 	return false;
 }
@@ -552,7 +552,7 @@ function auth_spip_synchroniser_distant($id_auteur, $champs, $options = [], stri
 		if ($p1) {
 			ecrire_fichier($htpasswd, $p1);
 			ecrire_fichier($htpasswd . '-admin', $p2);
-			spip_log("Ecriture de $htpasswd et $htpasswd-admin");
+			spip_logger()->info("Ecriture de $htpasswd et $htpasswd-admin");
 		}
 	}
 }

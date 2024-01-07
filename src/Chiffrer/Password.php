@@ -31,7 +31,7 @@ class Password {
 			$pass_poivre = hash_hmac('sha256', $password_clair, $key);
 			return password_verify($pass_poivre, $password_hash);
 		}
-		spip_log('Aucune clé pour vérifier le mot de passe', 'chiffrer' . _LOG_INFO_IMPORTANTE);
+		spip_logger('chiffrer')->notice('Aucune clé pour vérifier le mot de passe');
 		return false;
 	}
 
@@ -50,7 +50,7 @@ class Password {
 			$pass_poivre = hash_hmac('sha256', $password_clair, $key);
 			return password_hash($pass_poivre, PASSWORD_DEFAULT);
 		}
-		spip_log('Aucune clé pour chiffrer le mot de passe', 'chiffrer' . _LOG_INFO_IMPORTANTE);
+		spip_logger('chiffrer')->notice('Aucune clé pour chiffrer le mot de passe');
 		return null;
 	}
 

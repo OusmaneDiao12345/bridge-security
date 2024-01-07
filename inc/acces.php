@@ -119,7 +119,7 @@ function charger_aleas() {
 			}
 			return $GLOBALS['meta']['alea_ephemere'];
 		} else {
-			spip_log('aleas indisponibles', 'session');
+			spip_logger('session')->info('aleas indisponibles');
 			return '';
 		}
 	}
@@ -135,7 +135,7 @@ function renouvelle_alea() {
 	$GLOBALS['meta']['alea_ephemere'] = md5(creer_uniqid());
 	ecrire_meta('alea_ephemere', $GLOBALS['meta']['alea_ephemere'], 'non');
 	ecrire_meta('alea_ephemere_date', time(), 'non');
-	spip_log("renouvellement de l'alea_ephemere");
+	spip_logger()->info("renouvellement de l'alea_ephemere");
 }
 
 
@@ -335,7 +335,7 @@ function generer_htpasswd_files($htpasswd, $htpasswd_admin) {
 	if ($pwd_all) {
 		ecrire_fichier($htpasswd, $pwd_all);
 		ecrire_fichier($htpasswd_admin, $pwd_admin);
-		spip_log("Ecriture de $htpasswd et $htpasswd_admin", 'htpass');
+		spip_logger('htpass')->info("Ecriture de $htpasswd et $htpasswd_admin");
 	}
 }
 
@@ -404,7 +404,7 @@ function verifier_htaccess($rep, $force = false) {
 			$ht = ($ht['status'] ?? null) === 403;
 		}
 	}
-	spip_log("Creation de $htaccess " . ($ht ? ' reussie' : ' manquee'));
+	spip_logger()->info("Creation de $htaccess " . ($ht ? ' reussie' : ' manquee'));
 
 	return $ht;
 }

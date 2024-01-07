@@ -130,6 +130,6 @@ function spip_session($force = false) {
 		$session = ($s ? substr(md5($s), 0, 8) : '');
 	}
 
-	#spip_log('session: '.$session);
+	#spip_logger()->info('session: '.$session);
 	return $session;
 }

@@ -172,9 +172,9 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 		$qui['restreint'] = isset($qui['id_auteur']) ? liste_rubriques_auteur($qui['id_auteur']) : [];
 	}
 
-	spip_log(
+	$logger = spip_logger('autoriser');
+	$logger->debug(
 		"autoriser $faire $type $id (" . ($qui['nom'] ?? '') . ') ?',
-		'autoriser' . _LOG_DEBUG
 	);
 
 	$type = autoriser_type($type);
@@ -184,7 +184,7 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 		isset($GLOBALS['autoriser_exception'][$faire][$type][$id])
 		&& autoriser_exception($faire, $type, $id, 'verifier') || isset($GLOBALS['autoriser_exception'][$faire][$type]['*']) && autoriser_exception($faire, $type, '*', 'verifier')
 	) {
-		spip_log("autoriser ($faire, $type, $id, " . ($qui['nom'] ?? '') . ') : OK Exception', 'autoriser' . _LOG_DEBUG);
+		$logger->debug("autoriser ($faire, $type, $id, " . ($qui['nom'] ?? '') . ') : OK Exception');
 		return true;
 	}
 
@@ -217,9 +217,8 @@ function autoriser_dist(string $faire, ?string $type = '', $id = null, $qui = nu
 		}
 	}
 
-	spip_log(
+	$logger->debug(
 		"$f($faire, $type, $id, " . ($qui['nom'] ?? '') . ') : ' . ($a ? 'OK' : 'niet'),
-		'autoriser' . _LOG_DEBUG
 	);
 
 	if (!is_bool($a)) {

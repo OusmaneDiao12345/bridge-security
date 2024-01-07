@@ -34,7 +34,7 @@ class Chiffrement {
 		sodium_memzero($key);
 		sodium_memzero($nonce);
 		sodium_memzero($salt);
-		#spip_log("chiffrer($message)=$encoded", 'chiffrer' . _LOG_DEBUG);
+		#spip_logger('chiffrer')->debug("chiffrer($message)=$encoded");
 		return $encoded;
 	}
 
@@ -54,7 +54,7 @@ class Chiffrement {
 		sodium_memzero($nonce);
 		sodium_memzero($salt);
 		if ($padded_message === false) {
-			spip_log("dechiffrer() chiffre corrompu `$encoded`", 'chiffrer' . _LOG_DEBUG);
+			spip_logger('chiffrer')->debug("dechiffrer() chiffre corrompu `$encoded`");
 			return null;
 		}
 		return sodium_unpad($padded_message, 16);

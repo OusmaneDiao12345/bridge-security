@@ -54,7 +54,7 @@ function inc_admin_dist($script, $titre, $comment = '', $anonymous = false) {
 		if ($res) {
 			return $res;
 		}
-		spip_log("meta: $script " . print_r($_POST, true));
+		spip_logger()->info("meta: $script " . print_r($_POST, true));
 		ecrire_meta($script, serialize($_POST));
 	}
 
@@ -113,7 +113,7 @@ function admin_verifie_session($script, $anonymous = false) {
 			)
 		) {
 			include_spip('inc/minipres');
-			spip_log("refus de lancer $script, priorite a $valeur");
+			spip_logger()->info("refus de lancer $script, priorite a $valeur");
 			return minipres(_T('info_travaux_texte'), '', ['status' => 503]);
 		}
 	}
@@ -124,7 +124,7 @@ function admin_verifie_session($script, $anonymous = false) {
 	}
 	// on pourrait statuer automatiquement les webmestres a l'init d'une action auth par ftp ... ?
 
-	spip_log("admin $pref" . ($valeur ? ' (reprise)' : ' (init)'), $journal);
+	spip_logger($journal)->info("admin $pref" . ($valeur ? ' (reprise)' : ' (init)'));
 
 	return '';
 }
@@ -198,7 +198,7 @@ function debut_admin($script, $action = '', $corps = '') {
 		$dir = dir_admin();
 		$signal = fichier_admin($script);
 		if (@file_exists($dir . $signal)) {
-			spip_log("Action admin: $action");
+			spip_logger()->info("Action admin: $action");
 
 			return '';
 		}
@@ -211,7 +211,7 @@ function debut_admin($script, $action = '', $corps = '') {
 			&& $script != 'delete_all'
 		) {
 			if (_request('validation_admin') == $signal) {
-				spip_log("Action super-admin: $action");
+				spip_logger()->info("Action super-admin: $action");
 
 				return '';
 			}
@@ -272,7 +272,7 @@ function fin_admin($action) {
 	if ($action != 'delete_all') {
 		effacer_meta($action);
 		effacer_meta('admin');
-		spip_log("efface les meta admin et $action ");
+		spip_logger()->info("efface les meta admin et $action");
 	}
 }
 

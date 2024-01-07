@@ -58,7 +58,7 @@ function inc_auth_dist() {
 	}
 
 	$n = (int) sql_errno();
-	spip_log("Erreur base de donnees $n " . sql_error());
+	spip_logger()->info("Erreur base de donnees $n " . sql_error());
 
 	return $n ?: 1;
 }
@@ -105,7 +105,7 @@ function auth_echec($raison) {
 		);
 	} elseif (@$raison['statut']) {
 		// un simple visiteur n'a pas acces a l'espace prive
-		spip_log('connexion refusee a ' . @$raison['id_auteur']);
+		spip_logger()->info('connexion refusee a ' . @$raison['id_auteur']);
 		$est_connecte = (!empty($GLOBALS['visiteur_session']['login']) && !empty($GLOBALS['visiteur_session']['statut'])); // idem test balise #URL_LOGOUT
 		$raison = minipres(
 			_T('avis_erreur_connexion'),
@@ -184,7 +184,7 @@ function auth_mode() {
 			} else {
 				// cas de la session en plus de PHP_AUTH
 				/*				  if ($id_auteur != $r['id_auteur']){
-					spip_log("vol de session $id_auteur" . join(', ', $r));
+					spip_logger()->info("vol de session $id_auteur" . join(', ', $r));
 				unset($_COOKIE['spip_session']);
 				$id_auteur = '';
 				} */
@@ -515,7 +515,7 @@ function auth_identifier_login($login, #[\SensitiveParameter] $password, $serveu
 		if ($auth = charger_fonction($methode, 'auth', true)) {
 			$auteur = $auth($login, $password, $serveur, $phpauth);
 			if (is_array($auteur) && count($auteur)) {
-				spip_log("connexion de $login par methode $methode");
+				spip_logger()->info("connexion de $login par methode $methode");
 				$auteur['auth'] = $methode;
 				return $auteur;
 			} elseif (is_string($auteur)) {

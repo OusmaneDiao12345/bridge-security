@@ -114,7 +114,7 @@ final class SpipCles {
 			!empty($cles_potentielles['secret_des_auth'])
 			&& !Password::verifier($password_clair, $password_hash, $cles_potentielles['secret_des_auth'])
 		) {
-			spip_log("Restauration de la cle `secret_des_auth` par id_auteur $id_auteur erronnee, on ignore", 'chiffrer' . _LOG_INFO_IMPORTANTE);
+			spip_logger('chiffrer')->notice("Restauration de la cle `secret_des_auth` par id_auteur $id_auteur erronnee, on ignore");
 			unset($cles_potentielles['secret_des_auth']);
 		}
 
@@ -123,7 +123,7 @@ final class SpipCles {
 		foreach ($cles_potentielles as $name => $key) {
 			if (!$this->cles->has($name)) {
 				$this->cles->set($name, $key);
-				spip_log("Restauration de la cle $name par id_auteur $id_auteur", 'chiffrer' . _LOG_INFO_IMPORTANTE);
+				spip_logger('chiffrer')->notice("Restauration de la cle $name par id_auteur $id_auteur");
 				$restauration = true;
 			}
 		}
@@ -141,7 +141,7 @@ final class SpipCles {
 				return $this->cles->get($name);
 			}
 			// sinon loger et annule la cle generee car il ne faut pas l'utiliser
-			spip_log('Echec ecriture du fichier cle ' . $this->file . " ; impossible de generer une cle $name", 'chiffrer' . _LOG_ERREUR);
+			spip_logger('chiffrer')->error('Echec ecriture du fichier cle ' . $this->file . " ; impossible de generer une cle $name");
 			$this->cles->delete($name);
 		}
 		return null;
