@@ -155,7 +155,7 @@ function auth_ldap_connect($serveur = '') {
  */
 function auth_ldap_search($login, #[\SensitiveParameter] $pass, $checkpass = true, $serveur = '') {
 	// Securite anti-injection et contre un serveur LDAP laxiste
-	$login_search = preg_replace('/[^-@._\s\d\w]/', '', $login);
+	$login_search = preg_replace('/[^-@.\s\w]/', '', $login);
 	if (!strlen($login_search) || $checkpass && !strlen($pass)) {
 		return '';
 	}
