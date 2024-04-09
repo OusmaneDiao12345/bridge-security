@@ -1,0 +1,34 @@
+{
+    "name": "spip-remix/bridge-security",
+    "description": "Authentification et Autorisation dans SPIP",
+    "license": "GPL-3.0-only",
+    "type": "spip-plugin",
+    "authors": [
+        {
+            "name": "JamesRezo",
+            "email": "james@rezo.net"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "spip-remix/contracts": "^0.1.x-dev"
+    },
+    "require-dev": {
+        "spip-remix/sdk": "^0.1.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "SpipRemix\\Bridge\\Security\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SpipRemix\\Bridge\\Security\\Test\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.17"
+        }
+    }
+}

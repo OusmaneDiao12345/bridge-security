@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<paquet prefix="security" version="0.1.0" etat="experimental" compatibilite="[4.2.11;[">
+	<nom>Security</nom>
+	<necessite nom="php" compatibilite="[8.2.0;[" />
+</paquet>
